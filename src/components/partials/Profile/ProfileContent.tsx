@@ -2,16 +2,19 @@
 
 import {
   Avatar,
+  Badge,
   Container,
   Group,
   LoadingOverlay,
   SimpleGrid,
   Stack,
   Text,
+  ThemeIcon,
   Title,
 } from "@mantine/core";
+import { IconMedal, IconSparkles, IconUser } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
-import { OngBadge } from "@/components/common";
+import { OngBadge, TribeIcon } from "@/components/common";
 import { useInterests } from "@/hooks/interest";
 import { useMe } from "@/hooks/user";
 import { useTribes } from "@/hooks/tribe";
@@ -32,7 +35,10 @@ export default function ProfileContent() {
     <Container size="md" py="xl">
       <LoadingOverlay visible={isLoading} />
       <Stack gap="xl">
-        <Title order={2}>👤 {APP_TEXT.nav.profile}</Title>
+        <Group gap="sm">
+          <IconUser size={26} stroke={1.8} />
+          <Title order={2}>{APP_TEXT.nav.profile}</Title>
+        </Group>
 
         {me && (
           <BaseCard withBorder padding="xl" shadow="sm">
@@ -62,7 +68,10 @@ export default function ProfileContent() {
         )}
 
         <Stack gap="sm">
-          <Text fw={700}>🏅 องค์ของคุณ</Text>
+          <Group gap="xs">
+            <IconMedal size={20} stroke={1.8} />
+            <Text fw={700}>ไทป์ของคุณ</Text>
+          </Group>
           <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="sm">
             {tribes.map((tribe) => (
               <BaseCard
@@ -79,14 +88,21 @@ export default function ProfileContent() {
                 }}
               >
                 <Group gap="xs">
-                  <Text style={{ fontSize: 24 }}>{tribe.emoji}</Text>
+                  <ThemeIcon
+                    size={36}
+                    radius="xl"
+                    variant="light"
+                    color={tribe.color}
+                  >
+                    <TribeIcon slug={tribe.slug} size={22} />
+                  </ThemeIcon>
                   <Stack gap={2}>
                     <Text size="sm" fw={600}>
                       {tribe.name}
                     </Text>
                     {tribe.id === me?.primaryTribeId && (
                       <Text size="xs" c="ong-green.7" fw={600}>
-                        องค์หลัก
+                        ไทป์หลัก
                       </Text>
                     )}
                   </Stack>
@@ -97,13 +113,16 @@ export default function ProfileContent() {
         </Stack>
 
         <Stack gap="sm">
-          <Text fw={700}>✨ ความสนใจย่อย</Text>
+          <Group gap="xs">
+            <IconSparkles size={20} stroke={1.8} />
+            <Text fw={700}>ความสนใจย่อย</Text>
+          </Group>
           <Group gap="xs">
             {myInterests.length > 0 ? (
               myInterests.map((interest) => (
-                <Text key={interest.id} size="sm" c="dimmed">
-                  {interest.emoji} {interest.name}
-                </Text>
+                <Badge key={interest.id} size="sm" radius="xl" variant="light" color="gray">
+                  {interest.name}
+                </Badge>
               ))
             ) : (
               <Text size="sm" c="dimmed">

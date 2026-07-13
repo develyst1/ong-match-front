@@ -3,6 +3,7 @@
 import {
   ActionIcon,
   Avatar,
+  Badge,
   Group,
   Stack,
   Text,
@@ -71,9 +72,9 @@ export default function MatchCard({ match }: MatchCardProps) {
           <Group gap={6}>
             <OngBadge tribe={sharedTribe} size="md" />
             {sharedInterests.slice(0, 2).map((interest) => (
-              <Text key={interest.id} size="xs" c="dimmed">
-                {interest.emoji} {interest.name}
-              </Text>
+              <Badge key={interest.id} size="sm" radius="xl" variant="light" color="gray">
+                {interest.name}
+              </Badge>
             ))}
           </Group>
 
@@ -109,8 +110,8 @@ export default function MatchCard({ match }: MatchCardProps) {
           ) : (
             <Text size="sm" c={match.status === "ACCEPTED" ? "ong-green.7" : "dimmed"} fw={600} ta="center">
               {match.status === "ACCEPTED"
-                ? "อ๊อก! ตรงองค์กัน 🎉"
-                : "ยังไม่ตรงองค์"}
+                ? "อ๊อก! ตรงไทป์กัน"
+                : "ยังไม่ตรงไทป์"}
             </Text>
           )}
         </Stack>

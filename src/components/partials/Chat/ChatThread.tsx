@@ -12,7 +12,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useState } from "react";
-import { IconSend } from "@tabler/icons-react";
+import { IconMessageCircle, IconSend, IconUsersGroup } from "@tabler/icons-react";
 import { EmptyState } from "@/components/common";
 import { useChatMessages, useSendChatMessage } from "@/hooks/chat";
 import { initials, timeFromNow } from "@/lib/utils";
@@ -45,7 +45,11 @@ export default function ChatThread({ room }: ChatThreadProps) {
             color={room.type === "GROUP" ? "ong-green" : "blue"}
             src={room.avatarUrl || null}
           >
-            {room.type === "GROUP" ? "💬" : initials(room.name)}
+            {room.type === "GROUP" ? (
+              <IconUsersGroup size={20} stroke={1.8} />
+            ) : (
+              initials(room.name)
+            )}
           </Avatar>
           <Stack gap={2}>
             <Text fw={700} size="sm">
@@ -67,7 +71,7 @@ export default function ChatThread({ room }: ChatThreadProps) {
           </Stack>
         ) : messages.length === 0 ? (
           <EmptyState
-            emoji="💬"
+            icon={<IconMessageCircle size={30} stroke={1.8} />}
             title="เริ่มบทสนทนา"
             description={APP_TEXT.chat.placeholder}
           />

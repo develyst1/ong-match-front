@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Grid, Stack, Text, Title } from "@mantine/core";
+import { Container, Grid, Group, Stack, Text, Title } from "@mantine/core";
+import { IconArrowLeft, IconMessageCircle } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { EmptyState } from "@/components/common";
 import { useChatRooms } from "@/hooks/chat";
@@ -32,13 +33,16 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
   return (
     <Container size="xl" py="xl">
       <Stack gap="xl" h="100%">
-        <Title order={2}>💬 {APP_TEXT.chat.title}</Title>
+        <Group gap="sm">
+          <IconMessageCircle size={26} stroke={1.8} />
+          <Title order={2}>{APP_TEXT.chat.title}</Title>
+        </Group>
 
         {rooms.length === 0 ? (
           <EmptyState
-            emoji="💬"
+            icon={<IconMessageCircle size={30} stroke={1.8} />}
             title={APP_TEXT.chat.noRoom}
-            description="อ๊อกคนที่ตรงองค์ก่อน แล้วมาคุยกันได้เลย"
+            description="อ๊อกคนที่ตรงไทป์ก่อน แล้วมาคุยกันได้เลย"
           >
             <BaseCard
               withBorder
@@ -48,7 +52,7 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
               onClick={() => router.push("/discover")}
             >
               <Text size="sm" c="ong-green.7" fw={600}>
-                ไปหาคนองค์เดียวกัน →
+                ไปหาคนไทป์เดียวกัน →
               </Text>
             </BaseCard>
           </EmptyState>
@@ -91,9 +95,9 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
               ) : (
                 <BaseCard withBorder shadow="none" h="100%">
                   <EmptyState
-                    emoji="👈"
+                    icon={<IconArrowLeft size={30} stroke={1.8} />}
                     title="เลือกห้องแชต"
-                    description="เลือกองค์รูม หรือแชตส่วนตัวทางซ้าย"
+                    description="เลือกไทป์รูม หรือแชตส่วนตัวทางซ้าย"
                   />
                 </BaseCard>
               )}

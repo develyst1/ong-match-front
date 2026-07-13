@@ -1,4 +1,4 @@
-// Frontend domain type for a Tribe ("องค์" / Ong category).
+// Frontend domain type for a Tribe ("ไทป์" / Ong category).
 
 export interface Tribe {
   id: string;

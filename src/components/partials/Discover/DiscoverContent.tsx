@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Stack, Text, Title } from "@mantine/core";
+import { Container, Group, Stack, Text, Title } from "@mantine/core";
 import { IconCompass } from "@tabler/icons-react";
 import { Suspense } from "react";
 import { useSearchPersist } from "@/hooks/common";
@@ -35,7 +35,10 @@ function DiscoverInner() {
     <Container size="xl" py="xl">
       <Stack gap="xl">
         <Stack gap={4}>
-          <Title order={2}>🧭 {APP_TEXT.discover.title}</Title>
+          <Group gap="sm">
+            <IconCompass size={26} stroke={1.8} />
+            <Title order={2}>{APP_TEXT.discover.title}</Title>
+          </Group>
           <Text size="sm" c="dimmed">
             {APP_TEXT.discover.suggested}
           </Text>

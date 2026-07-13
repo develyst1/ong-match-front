@@ -6,7 +6,7 @@ import type { TribeResponse } from "@/types/api/main/tribe";
 import type { UserResponse } from "@/types/api/main/user";
 import { mainClient } from "./client";
 
-// ─── Tribes ("องค์" / Ong categories) ──────────────────────────────
+// ─── Tribes ("ไทป์" / Ong categories) ──────────────────────────────
 export const getTribesApi = () =>
   mainClient.get<ApiResponse<TribeResponse[]>>("/api/v1/tribes");
 

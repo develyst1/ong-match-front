@@ -15,10 +15,12 @@ import {
   Stack,
   Text,
   TextInput,
+  ThemeIcon,
   Title,
 } from "@mantine/core";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseInput } from "@/components/ui/Input";
+import { TribeIcon } from "@/components/common";
 import { useInterests } from "@/hooks/interest";
 import { useTribes } from "@/hooks/tribe";
 import { useUpdateMe } from "@/hooks/user";
@@ -97,7 +99,7 @@ export default function OnboardingContent() {
         {step === 2 && (
           <Stack gap="md">
             <Stack gap={4}>
-              <Title order={3}>{APP_TEXT.onboarding.step2Title} ✨</Title>
+              <Title order={3}>{APP_TEXT.onboarding.step2Title}</Title>
               <Text size="sm" c="dimmed">
                 {APP_TEXT.onboarding.step2Desc}
               </Text>
@@ -113,7 +115,7 @@ export default function OnboardingContent() {
                   radius="xl"
                   size="md"
                 >
-                  {interest.emoji} {interest.name}
+                  {interest.name}
                 </Chip>
               ))}
             </Group>
@@ -153,14 +155,14 @@ function Step1({
   primaryTribeId,
   onSelect,
 }: {
-  tribes: { id: string; emoji: string; name: string; nameEn: string; color: string; description: string; memberCount: number }[];
+  tribes: { id: string; slug: string; name: string; nameEn: string; color: string; description: string; memberCount: number }[];
   primaryTribeId: string;
   onSelect: (id: string) => void;
 }) {
   return (
     <Stack gap="md">
       <Stack gap={4}>
-        <Title order={3}>{APP_TEXT.onboarding.step1Title} 🌵</Title>
+        <Title order={3}>{APP_TEXT.onboarding.step1Title}</Title>
         <Text size="sm" c="dimmed">
           {APP_TEXT.onboarding.step1Desc}
         </Text>
@@ -188,9 +190,14 @@ function Step1({
                 }}
               >
                 <Stack align="center" gap="xs" ta="center">
-                  <Text style={{ fontSize: 40, lineHeight: 1 }}>
-                    {tribe.emoji}
-                  </Text>
+                  <ThemeIcon
+                    size={56}
+                    radius="xl"
+                    variant="light"
+                    color={tribe.color}
+                  >
+                    <TribeIcon slug={tribe.slug} size={30} />
+                  </ThemeIcon>
                   <Text fw={700} size="sm">
                     {tribe.name}
                   </Text>
@@ -217,7 +224,7 @@ function Step3({
   return (
     <Stack gap="md">
       <Stack gap={4}>
-        <Title order={3}>{APP_TEXT.onboarding.step3Title} 👋</Title>
+        <Title order={3}>{APP_TEXT.onboarding.step3Title}</Title>
         <Text size="sm" c="dimmed">
           {APP_TEXT.onboarding.step3Desc}
         </Text>
@@ -230,7 +237,7 @@ function Step3({
       />
       <TextInput
         label="แนะนำตัวสั้นๆ"
-        placeholder="บอกหน่อยคุณเป็นคนองค์ไหน"
+        placeholder="บอกหน่อยคุณเป็นคนไทป์ไหน"
         radius="xl"
         size="md"
         value={form.bio}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, Badge, Group, Stack, Text } from "@mantine/core";
+import { IconUsersGroup } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { initials, timeFromNow } from "@/lib/utils";
 import type { ChatRoom } from "@/types/app/chat";
@@ -38,7 +39,7 @@ export default function ChatRoomItem({
           color={isGroup ? "ong-green" : "blue"}
           src={room.avatarUrl || null}
         >
-          {isGroup ? "💬" : initials(room.name)}
+          {isGroup ? <IconUsersGroup size={22} stroke={1.8} /> : initials(room.name)}
         </Avatar>
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
           <Group justify="space-between" gap="xs">

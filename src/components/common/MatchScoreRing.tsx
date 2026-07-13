@@ -9,11 +9,11 @@ interface MatchScoreRingProps {
   label?: string;
 }
 
-/** Circular "Ong Match Score" indicator (e.g. 92% องค์ตรงกัน). */
+/** Circular "Ong Match Score" indicator (e.g. 92% ไทป์ตรงกัน). */
 export default function MatchScoreRing({
   score,
   size = 80,
-  label = "องค์ตรงกัน",
+  label = "ไทป์ตรงกัน",
 }: MatchScoreRingProps) {
   return (
     <Stack align="center" gap={4}>
