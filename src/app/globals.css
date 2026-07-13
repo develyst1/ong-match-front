@@ -1,0 +1,27 @@
+@import "@mantine/core/styles.css";
+@import "@mantine/dates/styles.css";
+
+:root {
+  --font-sans: "Noto Sans Thai", "IBM Plex Sans Thai", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  background: var(--mantine-color-gray-0);
+}
+
+/* Smooth, warm gradient backdrop for the landing page */
+.ong-landing-bg {
+  background: radial-gradient(
+      1200px 600px at 80% -10%,
+      var(--mantine-color-ong-green-1),
+      transparent
+    ),
+    radial-gradient(
+      900px 500px at 0% 100%,
+      var(--mantine-color-teal-1),
+      transparent
+    );
+}
