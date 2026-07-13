@@ -16,15 +16,15 @@ export default function DiscoverHeader({
   onFilterChange,
 }: DiscoverHeaderProps) {
   const tribeData = [
-    { value: "all", label: "ทุกองค์" },
-    ...tribes.map((t) => ({ value: t.id, label: `${t.emoji} ${t.name}` })),
+    { value: "all", label: "ทุกไทป์" },
+    ...tribes.map((t) => ({ value: t.id, label: t.name })),
   ];
 
   return (
     <Group justify="space-between" align="flex-end" wrap="wrap" gap="md">
       <div style={{ minWidth: 240, flex: 1 }}>
         <Text size="sm" fw={500} mb={4}>
-          องค์
+          ไทป์
         </Text>
         <BaseSelect
           value={filters.tribeId}
@@ -39,7 +39,7 @@ export default function DiscoverHeader({
         value={filters.sort ?? "score"}
         onChange={(value) => onFilterChange("sort", value)}
         data={[
-          { label: "องค์ตรงสุด", value: "score" },
+          { label: "ไทป์ตรงสุด", value: "score" },
           { label: "ใหม่ล่าสุด", value: "new" },
         ]}
         radius="xl"

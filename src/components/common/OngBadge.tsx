@@ -2,16 +2,23 @@
 
 import { Badge, type BadgeProps } from "@mantine/core";
 import type { Tribe } from "@/types/app/tribe";
+import { TribeIcon } from "./TribeIcon";
 
 interface OngBadgeProps extends Omit<BadgeProps, "color"> {
-  tribe: Pick<Tribe, "emoji" | "name" | "color">;
+  tribe: Pick<Tribe, "slug" | "name" | "color">;
 }
 
-/** Pill that shows a Tribe emoji + name with the tribe's color. */
+/** Pill that shows a Tribe icon + name with the tribe's color. */
 export default function OngBadge({ tribe, size = "md", variant = "light", ...props }: OngBadgeProps) {
   return (
-    <Badge color={tribe.color} size={size} variant={variant} radius="xl" {...props}>
-      <span style={{ marginRight: 4 }}>{tribe.emoji}</span>
+    <Badge
+      color={tribe.color}
+      size={size}
+      variant={variant}
+      radius="xl"
+      leftSection={<TribeIcon slug={tribe.slug} size={14} />}
+      {...props}
+    >
       {tribe.name}
     </Badge>
   );

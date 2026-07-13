@@ -4,7 +4,6 @@ export interface Interest {
   id: string;
   tribeId: string;
   name: string;
-  emoji?: string;
 }
 
 export interface InterestListParams {

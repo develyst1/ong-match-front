@@ -7,9 +7,11 @@ import {
   Skeleton,
   Stack,
   Text,
+  ThemeIcon,
 } from "@mantine/core";
+import { IconCategory } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
-import { EmptyState } from "@/components/common";
+import { EmptyState, TribeIcon } from "@/components/common";
 import { useTribes } from "@/hooks/tribe";
 import type { Tribe } from "@/types/app/tribe";
 
@@ -19,8 +21,8 @@ export function TribesGrid() {
   if (!isLoading && tribes.length === 0) {
     return (
       <EmptyState
-        emoji="🗂️"
-        title="ยังไม่มีองค์ให้เลือก"
+        icon={<IconCategory size={30} stroke={1.8} />}
+        title="ยังไม่มีไทป์ให้เลือก"
         description="ลองรีเฟรชใหม่อีกครั้งนะ"
       />
     );
@@ -60,7 +62,9 @@ function TribeCard({ tribe }: { tribe: Tribe }) {
       }}
     >
       <Stack align="center" gap="xs" ta="center">
-        <Text style={{ fontSize: 44, lineHeight: 1 }}>{tribe.emoji}</Text>
+        <ThemeIcon size={56} radius="xl" variant="light" color={tribe.color}>
+          <TribeIcon slug={tribe.slug} size={30} />
+        </ThemeIcon>
         <Text fw={700} size="sm">
           {tribe.name}
         </Text>

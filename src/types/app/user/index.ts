@@ -17,8 +17,8 @@ export interface User {
 
 export interface OngBadge {
   tribeId: string;
+  tribeSlug: string;
   tribeName: string;
-  tribeEmoji: string;
   tribeColor: string;
 }
 

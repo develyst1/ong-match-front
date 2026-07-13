@@ -11,6 +11,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import { IconSparkles } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseInput } from "@/components/ui/Input";
 import { BaseCard } from "@/components/ui/Card";
@@ -51,8 +52,13 @@ export default function LoginPage() {
     <BaseCard withBorder shadow="md" padding="xl" w="100%" maw={420}>
       <Stack gap="md">
         <Stack gap={4} align="center" ta="center">
-          <Badge color="ong-green" variant="light" radius="xl">
-            🌵 {APP_TEXT.brand}
+          <Badge
+            color="ong-green"
+            variant="light"
+            radius="xl"
+            leftSection={<IconSparkles size={14} stroke={2} />}
+          >
+            {APP_TEXT.brand}
           </Badge>
           <Title order={2}>{APP_TEXT.button.login}</Title>
           <Text size="sm" c="dimmed">

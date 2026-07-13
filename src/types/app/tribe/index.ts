@@ -5,7 +5,6 @@ export interface Tribe {
   slug: string;
   name: string;
   nameEn: string;
-  emoji: string;
   color: string; // Mantine color name (e.g. "green", "grape")
   description: string;
   memberCount: number;

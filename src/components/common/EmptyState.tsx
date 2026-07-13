@@ -1,9 +1,11 @@
 "use client";
 
+import { IconSeedling } from "@tabler/icons-react";
 import { Stack, Text, ThemeIcon } from "@mantine/core";
 
 interface EmptyStateProps {
-  emoji?: string;
+  /** A Tabler icon node to display in the circular badge. */
+  icon?: React.ReactNode;
   title: string;
   description?: string;
   children?: React.ReactNode;
@@ -11,7 +13,7 @@ interface EmptyStateProps {
 
 /** Friendly empty/zero-state block used across lists. */
 export default function EmptyState({
-  emoji = "🌱",
+  icon,
   title,
   description,
   children,
@@ -19,7 +21,7 @@ export default function EmptyState({
   return (
     <Stack align="center" justify="center" py={48} gap="sm">
       <ThemeIcon size={64} radius="xl" variant="light" color="ong-green">
-        <span style={{ fontSize: 30 }}>{emoji}</span>
+        {icon ?? <IconSeedling size={30} stroke={1.8} />}
       </ThemeIcon>
       <Text fw={600} size="lg" ta="center">
         {title}

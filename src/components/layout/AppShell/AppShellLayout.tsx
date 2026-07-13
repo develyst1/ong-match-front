@@ -21,6 +21,7 @@ import {
   IconUser,
   IconCategory,
   IconLogout,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { APP_TEXT } from "@/constant/text/common";
 
@@ -60,7 +61,7 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
           <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Avatar size={36} radius="xl" color="ong-green" variant="filled">
-              🌵
+              <IconSparkles size={20} stroke={1.8} />
             </Avatar>
             <Title order={4}>{APP_TEXT.brand}</Title>
           </Group>

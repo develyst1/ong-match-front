@@ -8,14 +8,15 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  ThemeIcon,
   Title,
 } from "@mantine/core";
+import { IconSparkles } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseCard } from "@/components/ui/Card";
+import { TribeIcon } from "@/components/common";
 import { useTribes } from "@/hooks/tribe";
 import { APP_TEXT } from "@/constant/text/common";
-
-const TRIBE_EMOJIS = ["🎌", "🏔️", "🌵", "🐶", "🦎", "✨"];
 
 export default function LandingPage() {
   const router = useRouter();
@@ -27,8 +28,14 @@ export default function LandingPage() {
         <Stack gap={48} align="center" ta="center">
           {/* Hero */}
           <Stack gap="md" align="center" maw={680}>
-            <Badge color="ong-green" variant="light" radius="xl" size="lg">
-              🌵 {APP_TEXT.brand}
+            <Badge
+              color="ong-green"
+              variant="light"
+              radius="xl"
+              size="lg"
+              leftSection={<IconSparkles size={14} stroke={2} />}
+            >
+              {APP_TEXT.brand}
             </Badge>
             <Title order={1} style={{ fontSize: "clamp(2rem, 6vw, 3.5rem)" }}>
               {APP_TEXT.tagline}
@@ -55,9 +62,9 @@ export default function LandingPage() {
 
           {/* Tribe showcase */}
           <Stack gap="md" w="100%">
-            <Title order={3}>เลือกองค์ของคุณ</Title>
+            <Title order={3}>เลือกไทป์ของคุณ</Title>
             <SimpleGrid cols={{ base: 2, xs: 3, md: 6 }} spacing="md">
-              {tribes.slice(0, 6).map((tribe, i) => (
+              {tribes.slice(0, 6).map((tribe) => (
                 <BaseCard
                   key={tribe.id}
                   withBorder
@@ -67,9 +74,9 @@ export default function LandingPage() {
                   style={{ cursor: "pointer" }}
                 >
                   <Stack align="center" gap="xs" ta="center">
-                    <Text style={{ fontSize: 36, lineHeight: 1 }}>
-                      {TRIBE_EMOJIS[i] ?? tribe.emoji}
-                    </Text>
+                    <ThemeIcon size={56} radius="xl" variant="light" color={tribe.color}>
+                      <TribeIcon slug={tribe.slug} size={28} />
+                    </ThemeIcon>
                     <Text fw={600} size="sm">
                       {tribe.name}
                     </Text>

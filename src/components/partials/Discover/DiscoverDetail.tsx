@@ -1,6 +1,7 @@
 "use client";
 
 import { SimpleGrid, Skeleton } from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
 import MatchCard from "./MatchCard";
 import { EmptyState } from "@/components/common";
 import { useMatches } from "@/hooks/match";
@@ -24,9 +25,9 @@ export default function DiscoverDetail({ tribeId, sort }: DiscoverDetailProps) {
   if (!isLoading && sorted.length === 0) {
     return (
       <EmptyState
-        emoji="🌵"
+        icon={<IconSearch size={30} stroke={1.8} />}
         title={APP_TEXT.discover.noResults}
-        description="ลองเปลี่ยนองค์ หรือดูแบบ 'ทุกองค์' ดูนะ"
+        description="ลองเปลี่ยนไทป์ หรือดูแบบ 'ทุกไทป์' ดูนะ"
       />
     );
   }

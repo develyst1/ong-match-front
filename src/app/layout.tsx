@@ -6,9 +6,9 @@ import { QueryProvider } from "@/context/query/QueryProvider";
 import { NextAuthProvider } from "@/context/auth/NextAuthProvider";
 
 export const metadata: Metadata = {
-  title: "Ong Match — หาคนองค์เดียวกัน",
+  title: "Ong Match — หาคนไทป์เดียวกัน",
   description:
-    "องค์ไหน? ตรงกันปุ๊บ คุยกันปั๊บ — หาคนองค์เดียวกัน คุยรู้ใจ ไม่ต้องงง",
+    "ไทป์ไหน? ตรงกันปุ๊บ คุยกันปั๊บ — หาคนไทป์เดียวกัน คุยรู้ใจ ไม่ต้องงง",
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 "use client";
 
 import { Container, Stack, Text, Title } from "@mantine/core";
+import { IconCompass } from "@tabler/icons-react";
 import { Suspense } from "react";
 import { useSearchPersist } from "@/hooks/common";
 import { useTribes } from "@/hooks/tribe";
