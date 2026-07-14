@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  Alert,
   Avatar,
   Container,
   Group,
@@ -10,17 +11,18 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { IconArrowLeft, IconLock, IconMessage } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { BaseCard } from "@/components/ui/Card";
 import { BaseButton } from "@/components/ui/Button";
 import { CompactTypeRow } from "@/components/common";
-import { usePublicProfile, useFollow } from "@/hooks/social";
+import { usePublicProfile, useFollow, useCanContact } from "@/hooks/social";
 import { initials } from "@/lib/utils";
 
 export default function PublicProfileContent({ userId }: { userId: string }) {
   const router = useRouter();
   const { profile, isLoading } = usePublicProfile(userId);
+  const { contact } = useCanContact(userId);
   const follow = useFollow();
   const [following, setFollowing] = useState(false);
 
@@ -63,9 +65,25 @@ export default function PublicProfileContent({ userId }: { userId: string }) {
               {profile.location && <Text size="sm" c="dimmed">{profile.location}</Text>}
             </Stack>
             {profile.bio && <Text size="sm" maw={420}>{profile.bio}</Text>}
-            <BaseButton radius="xl" variant={following ? "light" : "filled"} onClick={toggleFollow}>
-              {following ? "กำลังติดตาม" : "ติดตาม"}
-            </BaseButton>
+            <Group gap="sm">
+              <BaseButton radius="xl" variant={following ? "light" : "filled"} onClick={toggleFollow}>
+                {following ? "กำลังติดตาม" : "ติดตาม"}
+              </BaseButton>
+              <BaseButton
+                radius="xl"
+                variant="light"
+                disabled={contact ? !contact.allowed : true}
+                leftSection={contact && !contact.allowed ? <IconLock size={16} /> : <IconMessage size={16} />}
+                onClick={() => router.push("/chat")}
+              >
+                เริ่มคุย
+              </BaseButton>
+            </Group>
+            {contact && !contact.allowed && (
+              <Alert color="gray" variant="light" radius="md" icon={<IconLock size={16} />} maw={420}>
+                {contact.reason}
+              </Alert>
+            )}
           </Stack>
         </BaseCard>
 

@@ -1,6 +1,7 @@
 import { mainClient } from "./client";
 import type { ApiResponse } from "@/types/api/main/common";
 import type {
+  ContactCheck,
   FeedItem,
   MatchingPerson,
   PublicProfile,
@@ -29,3 +30,6 @@ export const getPeopleMatchesApi = () =>
 
 export const getPublicProfileApi = (userId: string) =>
   mainClient.get<ApiResponse<PublicProfile>>(`/api/v1/users/${userId}`);
+
+export const getCanContactApi = (userId: string) =>
+  mainClient.get<ApiResponse<ContactCheck>>(`/api/v1/users/${userId}/can-contact`);

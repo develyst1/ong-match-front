@@ -23,6 +23,15 @@ export function scoreColor(score: number): string {
   return "gray";
 }
 
+/** Compute whole-years age from a date of birth. */
+export function ageFromDob(dob: Date): number {
+  const now = new Date();
+  let age = now.getFullYear() - dob.getFullYear();
+  const m = now.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
+  return age;
+}
+
 /** Derive initials from a display name (for avatar fallback). */
 export function initials(name: string): string {
   return name

@@ -7,8 +7,7 @@ import {
   Avatar,
   Box,
   Group,
-  NavLink,
-  Stack,
+  Menu,
   Text,
   Title,
   UnstyledButton,
@@ -21,7 +20,6 @@ import {
   IconCategory,
   IconLogout,
   IconSparkles,
-  IconPlus,
 } from "@tabler/icons-react";
 import { APP_TEXT } from "@/constant/text/common";
 import { useAuth } from "@/hooks/auth";
@@ -34,10 +32,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: APP_TEXT.nav.discover, short: "หาไทป์", href: "/discover", icon: <IconCompass size={22} /> },
-  { label: APP_TEXT.nav.tribes, short: "ไทป์รูม", href: "/tribes", icon: <IconCategory size={22} /> },
-  { label: APP_TEXT.nav.chat, short: "แชต", href: "/chat", icon: <IconMessages size={22} /> },
-  { label: APP_TEXT.nav.profile, short: "ฉัน", href: "/profile", icon: <IconUser size={22} /> },
+  { label: "หาไทป์", short: "หาไทป์", href: "/discover", icon: <IconCompass size={20} /> },
+  { label: "ไทป์รูม", short: "ไทป์รูม", href: "/tribes", icon: <IconCategory size={20} /> },
+  { label: "แชต", short: "แชต", href: "/chat", icon: <IconMessages size={20} /> },
+  { label: "โปรไฟล์", short: "ฉัน", href: "/profile", icon: <IconUser size={20} /> },
 ];
 
 export default function AppShellLayout({ children }: { children: React.ReactNode }) {
@@ -55,70 +53,84 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
   return (
     <MantineAppShell
       header={{ height: 60 }}
-      navbar={{ width: 248, breakpoint: "sm", collapsed: { mobile: true } }}
       padding={0}
       bg={colorScheme === "dark" ? "dark.8" : "gray.0"}
     >
-      {/* Top bar */}
-      <MantineAppShell.Header withBorder={false} style={{ backdropFilter: "blur(8px)", background: "var(--mantine-color-body)" }}>
-        <Group h="100%" px="md" justify="space-between">
-          <Link href="/discover" style={{ textDecoration: "none", color: "inherit" }}>
-            <Group gap="sm">
-              <Avatar size={34} radius="xl" color="ong-green" variant="filled">
-                <IconSparkles size={19} stroke={1.8} />
-              </Avatar>
-              <Title order={4} c="ong-green.8">
-                {APP_TEXT.brand}
-              </Title>
+      {/* Top bar — brand + horizontal menu + user menu */}
+      <MantineAppShell.Header
+        withBorder={false}
+        style={{ backdropFilter: "blur(8px)", background: "var(--mantine-color-body)", borderBottom: "1px solid var(--mantine-color-gray-2)" }}
+      >
+        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+          <Group gap="lg" wrap="nowrap">
+            <Link href="/discover" style={{ textDecoration: "none", color: "inherit" }}>
+              <Group gap="sm" wrap="nowrap">
+                <Avatar size={34} radius="xl" color="ong-green" variant="filled">
+                  <IconSparkles size={19} stroke={1.8} />
+                </Avatar>
+                <Title order={4} c="ong-green.8" visibleFrom="xs">
+                  {APP_TEXT.brand}
+                </Title>
+              </Group>
+            </Link>
+
+            {/* Horizontal nav (desktop) */}
+            <Group gap={4} wrap="nowrap" visibleFrom="sm">
+              {NAV_ITEMS.map((item) => {
+                const active = activeHref === item.href;
+                return (
+                  <UnstyledButton
+                    key={item.href}
+                    component={Link}
+                    href={item.href}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "8px 14px",
+                      borderRadius: 999,
+                      fontWeight: 600,
+                      fontSize: 14,
+                      color: active ? "var(--mantine-color-ong-green-7)" : "var(--mantine-color-dimmed)",
+                      background: active ? "var(--mantine-color-ong-green-0)" : "transparent",
+                    }}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </UnstyledButton>
+                );
+              })}
             </Group>
-          </Link>
-          <UnstyledButton
-            onClick={() => router.push("/onboarding")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              background: "var(--mantine-color-ong-green-6)",
-              color: "white",
-              padding: "6px 14px",
-              borderRadius: 999,
-              fontWeight: 600,
-              fontSize: 14,
-            }}
-          >
-            <IconPlus size={16} stroke={2.5} />
-            สร้างไทป์
-          </UnstyledButton>
+          </Group>
+
+          {/* User menu */}
+          <Menu position="bottom-end" radius="md" shadow="md" width={180}>
+            <Menu.Target>
+              <UnstyledButton>
+                <Avatar size={34} radius="xl" color="ong-green" variant="light">
+                  <IconUser size={19} />
+                </Avatar>
+              </UnstyledButton>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconUser size={16} />}
+                onClick={() => router.push("/profile")}
+              >
+                {APP_TEXT.nav.profile}
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                color="red"
+                leftSection={<IconLogout size={16} />}
+                onClick={handleLogout}
+              >
+                {APP_TEXT.button.logout}
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       </MantineAppShell.Header>
-
-      {/* Desktop sidebar */}
-      <MantineAppShell.Navbar p="md" withBorder={false}>
-        <Stack gap="xs" justify="space-between" h="100%">
-          <Stack gap={4}>
-            {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.href}
-                component={Link}
-                href={item.href}
-                label={item.label}
-                active={activeHref === item.href}
-                leftSection={item.icon}
-                variant="filled"
-                styles={{ root: { borderRadius: "var(--mantine-radius-lg)" }, label: { fontWeight: 600 } }}
-              />
-            ))}
-          </Stack>
-          <NavLink
-            component="button"
-            onClick={handleLogout}
-            label={APP_TEXT.button.logout}
-            color="red"
-            leftSection={<IconLogout size={22} />}
-            styles={{ root: { borderRadius: "var(--mantine-radius-lg)" } }}
-          />
-        </Stack>
-      </MantineAppShell.Navbar>
 
       <MantineAppShell.Main pb={{ base: 84, sm: "md" }}>
         <Box mih="100%" px="md" pt="md">
@@ -126,7 +138,7 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
         </Box>
       </MantineAppShell.Main>
 
-      {/* Mobile bottom tab bar — the chat-app feel */}
+      {/* Mobile bottom tab bar */}
       <Box
         hiddenFrom="sm"
         style={{

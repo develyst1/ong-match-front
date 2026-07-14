@@ -2,25 +2,55 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Badge, PasswordInput, Stack, Text, Title } from "@mantine/core";
-import { IconSparkles } from "@tabler/icons-react";
+import { Alert, Badge, PasswordInput, Stack, Text, Title } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
+import { IconAlertCircle, IconSparkles } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseInput } from "@/components/ui/Input";
 import { BaseCard } from "@/components/ui/Card";
+import { updateMeApi } from "@/lib/api/api-main";
+import { ageFromDob } from "@/lib/utils";
 import { APP_TEXT } from "@/constant/text/common";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [dob, setDob] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Demo mode — backend wiring TODO. Go straight to onboarding.
+    setError(null);
+    if (!/^0\d{8,9}$/.test(phone)) {
+      setError("กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)");
+      return;
+    }
+    setLoading(true);
+    // Demo mode — no real auth backend; identify the user by email and persist
+    // the profile basics (name + age + phone) before the onboarding flow.
     window.localStorage.setItem("ong-match-token", "demo-token");
     window.localStorage.setItem("ong-match-email", email);
-    router.push("/onboarding");
+    const age = dob ? ageFromDob(new Date(dob)) : undefined;
+    try {
+      await updateMeApi({ displayName: name, phone, ...(age ? { age } : {}) });
+      router.push("/onboarding");
+    } catch (err) {
+      // A duplicate phone (409) blocks registration — one account per phone.
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 409) {
+        window.localStorage.removeItem("ong-match-token");
+        window.localStorage.removeItem("ong-match-email");
+        setError("เบอร์นี้ถูกใช้สมัครแล้ว หนึ่งเบอร์สมัครได้บัญชีเดียว");
+        setLoading(false);
+        return;
+      }
+      // Other errors: backend optional in demo mode — proceed.
+      router.push("/onboarding");
+    }
   };
 
   return (
@@ -41,6 +71,12 @@ export default function RegisterPage() {
           </Text>
         </Stack>
 
+        {error && (
+          <Alert color="red" variant="light" radius="md" icon={<IconAlertCircle size={16} />}>
+            {error}
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
             <BaseInput
@@ -58,6 +94,27 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.currentTarget.value)}
               required
             />
+            <BaseInput
+              label="เบอร์โทรศัพท์"
+              type="tel"
+              placeholder="0812345678"
+              description="ใช้ยืนยันตัวตน หนึ่งเบอร์สมัครได้บัญชีเดียว"
+              value={phone}
+              onChange={(e) => setPhone(e.currentTarget.value.replace(/[^0-9]/g, ""))}
+              maxLength={10}
+              required
+            />
+            <DatePickerInput
+              label="วันเกิด"
+              placeholder="เลือกวันเกิด"
+              radius="xl"
+              size="md"
+              valueFormat="D MMM YYYY"
+              maxDate={new Date()}
+              value={dob}
+              onChange={setDob}
+              required
+            />
             <PasswordInput
               label="รหัสผ่าน"
               placeholder="••••••••"
@@ -67,7 +124,7 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.currentTarget.value)}
               required
             />
-            <BaseButton type="submit" fullWidth>
+            <BaseButton type="submit" fullWidth loading={loading}>
               {APP_TEXT.button.register}
             </BaseButton>
           </Stack>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   Alert,
+  Badge,
   Center,
   Container,
   Group,
@@ -17,47 +18,72 @@ import {
 import {
   IconAlertCircle,
   IconArrowLeft,
-  IconBolt,
   IconConfetti,
   IconSparkles,
 } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
-import { BaseInput } from "@/components/ui/Input";
+import { BaseCard } from "@/components/ui/Card";
 import { LevelBadge } from "@/components/common";
 import { useTypeCreation } from "@/hooks/type";
 import StepQuiz from "./StepQuiz";
-import type { QuizDTO, SubmitQuizResponse } from "@/types/api/main/quiz";
+import type { QuizDTO, SubmitQuizResponse, TypeCandidate } from "@/types/api/main/quiz";
 
-type Phase = "name" | "elaborate" | "validating" | "verdict" | "quiz" | "result";
+type Phase = "story" | "suggesting" | "choose" | "validating" | "verdict" | "quiz" | "result";
 
 interface CreateTypeWizardProps {
   onDone?: () => void;
 }
 
 const PHASE_PROGRESS: Record<Phase, number> = {
-  name: 16,
-  elaborate: 33,
-  validating: 50,
-  verdict: 66,
-  quiz: 83,
+  story: 14,
+  suggesting: 28,
+  choose: 42,
+  validating: 56,
+  verdict: 70,
+  quiz: 85,
   result: 100,
 };
 
 export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
-  const { validate, submit } = useTypeCreation();
-  const [phase, setPhase] = useState<Phase>("name");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [rejectReason, setRejectReason] = useState<string | null>(null);
+  const { suggest, validate, submit } = useTypeCreation();
+  const [phase, setPhase] = useState<Phase>("story");
+  const [story, setStory] = useState("");
+  const [candidates, setCandidates] = useState<TypeCandidate[]>([]);
+  const [chosen, setChosen] = useState<TypeCandidate | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [verdict, setVerdict] = useState("");
   const [quiz, setQuiz] = useState<QuizDTO | null>(null);
   const [result, setResult] = useState<SubmitQuizResponse | null>(null);
 
-  const runValidation = () => {
-    setRejectReason(null);
+  const runSuggest = () => {
+    setError(null);
+    setPhase("suggesting");
+    suggest.mutate(story.trim(), {
+      onSuccess: (list) => {
+        if (list.length === 0) {
+          setError("AI แนะนำไทป์ไม่สำเร็จ ลองเล่าให้ละเอียดขึ้น");
+          setPhase("story");
+          return;
+        }
+        setCandidates(list);
+        setPhase("choose");
+      },
+      onError: (err: unknown) => {
+        const reason =
+          (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+          "AI แนะนำไทป์ไม่สำเร็จ ลองเล่าให้ละเอียดขึ้น";
+        setError(reason);
+        setPhase("story");
+      },
+    });
+  };
+
+  const pickCandidate = (candidate: TypeCandidate) => {
+    setChosen(candidate);
+    setError(null);
     setPhase("validating");
     validate.mutate(
-      { title: title.trim(), description: description.trim() },
+      { title: candidate.title, description: story.trim() },
       {
         onSuccess: (data) => {
           setVerdict(data.verdict);
@@ -67,9 +93,9 @@ export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
         onError: (err: unknown) => {
           const reason =
             (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-            "ไทป์นี้ผ่านการตรวจไม่ได้ ลองปรับชื่อหรือคำอธิบายให้ชัดเจนขึ้น";
-          setRejectReason(reason);
-          setPhase("elaborate");
+            "ไทป์นี้ผ่านการตรวจไม่ได้ ลองเลือกไทป์อื่นหรือเล่าใหม่";
+          setError(reason);
+          setPhase("choose");
         },
       },
     );
@@ -93,62 +119,98 @@ export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
       <Stack gap="lg" maw={560} mx="auto">
         <Progress value={PHASE_PROGRESS[phase]} size="sm" radius="xl" color="ong-green" />
 
-        {phase === "name" && (
+        {phase === "story" && (
           <Stack gap="md">
             <Group gap="xs">
               <ThemeIcon size={38} radius="xl" variant="light" color="ong-green">
                 <IconSparkles size={20} />
               </ThemeIcon>
-              <Title order={3}>คุณอยากเพิ่มไทป์อะไร?</Title>
+              <Title order={3}>เล่าเรื่องความอินของคุณ</Title>
             </Group>
             <Text size="sm" c="dimmed">
-              ตั้งชื่อไทป์ที่เป็นตัวคุณ เช่น &quot;ชอบเล่นกีตาร์ไฟฟ้า&quot;, &quot;สายวิ่งเทรล&quot;, &quot;คอกาแฟ specialty&quot;
+              ไม่ต้องตั้งชื่อไทป์เอง — เล่าให้ฟังว่าคุณชอบ/ทำอะไร อินมานานแค่ไหน แล้ว AI จะแนะนำไทป์ให้คุณเลือก
             </Text>
-            <BaseInput
-              label="ชื่อไทป์"
-              placeholder="พิมพ์ไทป์ของคุณ..."
-              value={title}
-              onChange={(e) => setTitle(e.currentTarget.value)}
+            {error && (
+              <Alert color="red" variant="light" radius="md" icon={<IconAlertCircle size={16} />}>
+                {error}
+              </Alert>
+            )}
+            <Textarea
+              placeholder="เช่น ผมเล่นกีตาร์ไฟฟ้าแนวบลูส์มา 8 ปี ชอบ fingerstyle กับ bending คัฟเวอร์ SRV บ่อยๆ..."
+              radius="lg"
+              autosize
+              minRows={4}
+              value={story}
+              onChange={(e) => setStory(e.currentTarget.value)}
               autoFocus
             />
-            <BaseButton size="lg" disabled={title.trim().length < 2} onClick={() => setPhase("elaborate")}>
-              ถัดไป
+            <BaseButton size="lg" disabled={story.trim().length < 10} onClick={runSuggest}>
+              ให้ AI แนะนำไทป์
             </BaseButton>
           </Stack>
         )}
 
-        {phase === "elaborate" && (
+        {phase === "suggesting" && (
+          <Center mih={280}>
+            <Stack align="center" gap="md">
+              <Loader color="ong-green" size="lg" type="dots" />
+              <Text fw={600}>AI กำลังอ่านเรื่องของคุณ...</Text>
+              <Text size="sm" c="dimmed">
+                กำลังคิดไทป์ที่ใช่ให้คุณเลือก
+              </Text>
+            </Stack>
+          </Center>
+        )}
+
+        {phase === "choose" && (
           <Stack gap="md">
             <Group gap="xs">
               <ThemeIcon size={38} radius="xl" variant="light" color="ong-green">
-                <IconBolt size={20} />
+                <IconSparkles size={20} />
               </ThemeIcon>
-              <Title order={3}>เล่าเรื่องไทป์นี้ของคุณ</Title>
+              <Title order={3}>เลือกไทป์ที่ใช่ที่สุด</Title>
             </Group>
             <Text size="sm" c="dimmed">
-              ยิ่งเล่าลึก AI ยิ่งออกคำถามได้ตรง — คุณอินกับ &quot;{title}&quot; มานานแค่ไหน ชอบอะไรเป็นพิเศษ?
+              AI แนะนำมา {candidates.length} ไทป์จากเรื่องของคุณ เลือกอันที่ตรงใจแล้วไปทำแบบทดสอบยืนยัน
             </Text>
-            {rejectReason && (
+            {error && (
               <Alert color="red" variant="light" radius="md" icon={<IconAlertCircle size={16} />}>
-                {rejectReason}
+                {error}
               </Alert>
             )}
-            <Textarea
-              placeholder="เล่าเรื่องราวความอินของคุณ..."
-              radius="lg"
-              autosize
-              minRows={4}
-              value={description}
-              onChange={(e) => setDescription(e.currentTarget.value)}
-            />
-            <Group justify="space-between">
-              <BaseButton variant="subtle" leftSection={<IconArrowLeft size={16} />} onClick={() => setPhase("name")}>
-                ย้อนกลับ
-              </BaseButton>
-              <BaseButton size="lg" disabled={description.trim().length < 10} onClick={runValidation}>
-                ให้ AI ตรวจ + ออกข้อสอบ
-              </BaseButton>
-            </Group>
+            <Stack gap="sm">
+              {candidates.map((c) => (
+                <BaseCard
+                  key={c.title}
+                  withBorder
+                  shadow="sm"
+                  padding="md"
+                  onClick={() => pickCandidate(c)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <Stack gap={6}>
+                    <Text fw={700}>{c.title}</Text>
+                    {c.blurb && (
+                      <Text size="sm" c="dimmed">
+                        {c.blurb}
+                      </Text>
+                    )}
+                    {c.tags.length > 0 && (
+                      <Group gap={6}>
+                        {c.tags.slice(0, 5).map((tag) => (
+                          <Badge key={tag} variant="light" color="teal" radius="sm" size="sm">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </Group>
+                    )}
+                  </Stack>
+                </BaseCard>
+              ))}
+            </Stack>
+            <BaseButton variant="subtle" leftSection={<IconArrowLeft size={16} />} onClick={() => setPhase("story")}>
+              เล่าใหม่
+            </BaseButton>
           </Stack>
         )}
 
@@ -156,9 +218,9 @@ export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
           <Center mih={280}>
             <Stack align="center" gap="md">
               <Loader color="ong-green" size="lg" type="dots" />
-              <Text fw={600}>AI กำลังตรวจไทป์และออกแบบทดสอบ...</Text>
+              <Text fw={600}>AI กำลังออกแบบทดสอบ...</Text>
               <Text size="sm" c="dimmed">
-                กันไทป์มั่ว + สร้างคำถามวัดความลึกให้คุณ
+                สร้างคำถามวัดความลึกไทป์ &quot;{chosen?.title}&quot; ให้คุณ
               </Text>
             </Stack>
           </Center>
@@ -187,7 +249,7 @@ export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
         )}
 
         {phase === "result" && result && (
-          <ResultView result={result} title={title} onDone={onDone} onRetry={() => setPhase("elaborate")} />
+          <ResultView result={result} title={chosen?.title ?? "ไทป์ของคุณ"} onDone={onDone} onRetry={() => setPhase("choose")} />
         )}
       </Stack>
     </Container>

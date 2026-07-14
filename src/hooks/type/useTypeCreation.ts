@@ -1,11 +1,15 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { relevel, submitQuiz, validateType } from "@/services/type.service";
+import { relevel, submitQuiz, suggestTypes, validateType } from "@/services/type.service";
 import { MY_TYPES_QUERY_KEY } from "./useMyTypes";
 
 export const useTypeCreation = () => {
   const queryClient = useQueryClient();
+
+  const suggest = useMutation({
+    mutationFn: (story: string) => suggestTypes(story),
+  });
 
   const validate = useMutation({
     mutationFn: (input: { title: string; description: string }) => validateType(input),
@@ -23,5 +27,5 @@ export const useTypeCreation = () => {
     mutationFn: (id: string) => relevel(id),
   });
 
-  return { validate, submit, startRelevel };
+  return { suggest, validate, submit, startRelevel };
 };

@@ -2,12 +2,15 @@ import type {
   MyType,
   QuizDTO,
   SubmitQuizResponse,
+  TypeCandidate,
   ValidateTypeResponse,
 } from "@/types/api/main/quiz";
 import {
   getMyTypesApi,
   relevelApi,
+  setTypeRequirementApi,
   submitQuizApi,
+  suggestTypesApi,
   validateTypeApi,
 } from "@/lib/api/api-types";
 import { mockDelay } from "@/lib/api/mock-data";
@@ -22,6 +25,25 @@ const mockQuiz = (title: string): QuizDTO => ({
     { id: "q3", prompt: `ถ้าให้แนะนำมือใหม่เรื่อง "${title}" คุณจะบอกอะไรเป็นอย่างแรก?` },
   ],
 });
+
+export const suggestTypes = async (story: string): Promise<TypeCandidate[]> => {
+  try {
+    return (await suggestTypesApi({ story })).data.data.candidates;
+  } catch {
+    // Mock fallback so the wizard still runs if the backend/AI is down.
+    return mockDelay([
+      { title: "ความสนใจของคุณ", blurb: "สร้างจากเรื่องที่คุณเล่า", tags: [] },
+    ]);
+  }
+};
+
+export const setTypeRequirement = async (id: string, minLevel: number): Promise<void> => {
+  try {
+    await setTypeRequirementApi(id, minLevel);
+  } catch {
+    await mockDelay(null);
+  }
+};
 
 export const validateType = async (input: { title: string; description: string }): Promise<ValidateTypeResponse> => {
   try {

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createPost,
   followUser,
+  getCanContact,
   getFeed,
   getPeopleMatches,
   getPublicProfile,
@@ -55,4 +56,13 @@ export const usePublicProfile = (userId?: string) => {
     enabled: Boolean(userId),
   });
   return { profile: data ?? null, isLoading };
+};
+
+export const useCanContact = (userId?: string) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["can-contact", userId],
+    queryFn: () => getCanContact(userId as string),
+    enabled: Boolean(userId),
+  });
+  return { contact: data ?? null, isLoading };
 };
