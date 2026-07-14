@@ -24,6 +24,7 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { APP_TEXT } from "@/constant/text/common";
+import { useAuth } from "@/hooks/auth";
 
 interface NavItem {
   label: string;
@@ -43,7 +44,13 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
   const pathname = usePathname();
   const router = useRouter();
   const { colorScheme } = useMantineColorScheme();
+  const { logout } = useAuth();
   const activeHref = `/${pathname.split("/")[1] ?? ""}`;
+
+  const handleLogout = () => {
+    logout();
+    router.replace("/");
+  };
 
   return (
     <MantineAppShell
@@ -103,8 +110,8 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
             ))}
           </Stack>
           <NavLink
-            component={Link}
-            href="/"
+            component="button"
+            onClick={handleLogout}
             label={APP_TEXT.button.logout}
             color="red"
             leftSection={<IconLogout size={22} />}

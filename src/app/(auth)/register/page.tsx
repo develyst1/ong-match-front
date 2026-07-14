@@ -19,6 +19,7 @@ export default function RegisterPage() {
     e.preventDefault();
     // Demo mode — backend wiring TODO. Go straight to onboarding.
     window.localStorage.setItem("ong-match-token", "demo-token");
+    window.localStorage.setItem("ong-match-email", email);
     router.push("/onboarding");
   };
 
