@@ -15,10 +15,10 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import {
-  IconCompass,
+  IconHome,
   IconMessages,
   IconUser,
-  IconCategory,
+  IconUsersGroup,
   IconLogout,
   IconSparkles,
   IconPlus,
@@ -33,8 +33,8 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: APP_TEXT.nav.discover, short: "หาไทป์", href: "/discover", icon: <IconCompass size={22} /> },
-  { label: APP_TEXT.nav.tribes, short: "ไทป์รูม", href: "/tribes", icon: <IconCategory size={22} /> },
+  { label: "ฟีด", short: "ฟีด", href: "/discover", icon: <IconHome size={22} /> },
+  { label: "หาเพื่อนไทป์เดียวกัน", short: "หาเพื่อน", href: "/tribes", icon: <IconUsersGroup size={22} /> },
   { label: APP_TEXT.nav.chat, short: "แชต", href: "/chat", icon: <IconMessages size={22} /> },
   { label: APP_TEXT.nav.profile, short: "ฉัน", href: "/profile", icon: <IconUser size={22} /> },
 ];
@@ -80,7 +80,7 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
             }}
           >
             <IconPlus size={16} stroke={2.5} />
-            สร้างไทป์
+            เพิ่มไทป์
           </UnstyledButton>
         </Group>
       </MantineAppShell.Header>
