@@ -25,6 +25,8 @@ export interface TypeDTO {
 
 export interface ValidateTypeResponse {
   type: TypeDTO;
+  /** Qualitative blurb from the AI (e.g. "โอ้ รู้ลึกมาก!"); the numeric level band is hidden. */
+  verdict: string;
   quiz: QuizDTO;
 }
 

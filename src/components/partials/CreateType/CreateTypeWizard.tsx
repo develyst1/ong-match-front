@@ -28,17 +28,18 @@ import { useTypeCreation } from "@/hooks/type";
 import StepQuiz from "./StepQuiz";
 import type { QuizDTO, SubmitQuizResponse } from "@/types/api/main/quiz";
 
-type Phase = "name" | "elaborate" | "validating" | "quiz" | "result";
+type Phase = "name" | "elaborate" | "validating" | "verdict" | "quiz" | "result";
 
 interface CreateTypeWizardProps {
   onDone?: () => void;
 }
 
 const PHASE_PROGRESS: Record<Phase, number> = {
-  name: 20,
-  elaborate: 40,
-  validating: 60,
-  quiz: 80,
+  name: 16,
+  elaborate: 33,
+  validating: 50,
+  verdict: 66,
+  quiz: 83,
   result: 100,
 };
 
@@ -48,6 +49,7 @@ export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [rejectReason, setRejectReason] = useState<string | null>(null);
+  const [verdict, setVerdict] = useState("");
   const [quiz, setQuiz] = useState<QuizDTO | null>(null);
   const [result, setResult] = useState<SubmitQuizResponse | null>(null);
 
@@ -58,8 +60,9 @@ export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
       { title: title.trim(), description: description.trim() },
       {
         onSuccess: (data) => {
+          setVerdict(data.verdict);
           setQuiz(data.quiz);
-          setPhase("quiz");
+          setPhase("verdict");
         },
         onError: (err: unknown) => {
           const reason =
@@ -159,6 +162,24 @@ export default function CreateTypeWizard({ onDone }: CreateTypeWizardProps) {
               </Text>
             </Stack>
           </Center>
+        )}
+
+        {phase === "verdict" && (
+          <Stack gap="md" align="center" ta="center" py="md">
+            <ThemeIcon size={72} radius="xl" variant="light" color="ong-green">
+              <IconSparkles size={38} />
+            </ThemeIcon>
+            <Title order={3}>AI อ่านเรื่องคุณแล้ว</Title>
+            <Text size="lg" fw={600} c="ong-green.7" maw={440}>
+              &ldquo;{verdict}&rdquo;
+            </Text>
+            <Text size="sm" c="dimmed" maw={440}>
+              ทำแบบทดสอบสั้น ๆ เพื่อยืนยันเลเวลจริงของคุณ (จับเวลานะ กันปลอมไทป์)
+            </Text>
+            <BaseButton size="lg" mt="xs" onClick={() => setPhase("quiz")}>
+              เริ่มแบบทดสอบยืนยัน
+            </BaseButton>
+          </Stack>
         )}
 
         {phase === "quiz" && quiz && (

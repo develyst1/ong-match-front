@@ -7,7 +7,6 @@ import {
   Container,
   Group,
   Modal,
-  SimpleGrid,
   Stack,
   Text,
   Title,
@@ -15,7 +14,7 @@ import {
 import { IconMedal, IconPlus, IconUser } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { BaseButton } from "@/components/ui/Button";
-import { EmptyState, TypeCard } from "@/components/common";
+import { EmptyState, CompactTypeRow } from "@/components/common";
 import { StepQuiz } from "@/components/partials/CreateType";
 import { useMe } from "@/hooks/user";
 import { useMyTypes, useTypeCreation } from "@/hooks/type";
@@ -95,7 +94,7 @@ export default function ProfileContent() {
               leftSection={<IconPlus size={14} />}
               onClick={() => router.push("/onboarding")}
             >
-              สร้างไทป์ใหม่
+              เพิ่มไทป์
             </BaseButton>
           </Group>
 
@@ -106,16 +105,19 @@ export default function ProfileContent() {
           )}
 
           {types.length > 0 ? (
-            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+            <Stack gap="xs">
               {types.map((type) => (
-                <TypeCard
+                <CompactTypeRow
                   key={type.id}
-                  type={type}
-                  onRelevel={handleRelevel}
+                  title={type.title}
+                  level={type.level}
+                  daysLeft={type.daysLeft}
+                  status={type.status}
+                  onRelevel={() => handleRelevel(type.id)}
                   relevelLoading={startRelevel.isPending && startRelevel.variables === type.id}
                 />
               ))}
-            </SimpleGrid>
+            </Stack>
           ) : (
             <EmptyState
               title="ยังไม่มีไทป์"

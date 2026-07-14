@@ -18,10 +18,9 @@ const ongGreen: MantineColorsTuple = [
 
 const theme = createTheme({
   primaryColor: "ong-green",
-  primaryShade: { light: 6, dark: 5 },
+  // Use a deeper shade for filled surfaces so white text always reads clearly.
+  primaryShade: { light: 7, dark: 5 },
   defaultRadius: "lg",
-  autoContrast: true,
-  luminanceThreshold: 0.35,
   colors: {
     "ong-green": ongGreen,
   },

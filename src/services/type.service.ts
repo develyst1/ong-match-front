@@ -42,6 +42,7 @@ export const validateType = async (input: { title: string; description: string }
         first_created_at: now.toISOString(),
         expires_at: new Date(now.getTime() + 30 * 86400_000).toISOString(),
       },
+      verdict: "ดูน่าสนใจ ลองทำแบบทดสอบยืนยันกัน",
       quiz: mockQuiz(input.title),
     });
   }
