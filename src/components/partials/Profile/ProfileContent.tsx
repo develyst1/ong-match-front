@@ -1,39 +1,60 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Avatar,
-  Badge,
   Container,
   Group,
-  LoadingOverlay,
+  Modal,
   SimpleGrid,
   Stack,
   Text,
-  ThemeIcon,
   Title,
 } from "@mantine/core";
-import { IconMedal, IconSparkles, IconUser } from "@tabler/icons-react";
+import { IconMedal, IconPlus, IconUser } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
-import { OngBadge, TribeIcon } from "@/components/common";
-import { useInterests } from "@/hooks/interest";
+import { BaseButton } from "@/components/ui/Button";
+import { EmptyState, TypeCard } from "@/components/common";
+import { StepQuiz } from "@/components/partials/CreateType";
 import { useMe } from "@/hooks/user";
-import { useTribes } from "@/hooks/tribe";
+import { useMyTypes, useTypeCreation } from "@/hooks/type";
 import { initials } from "@/lib/utils";
 import { APP_TEXT } from "@/constant/text/common";
+import type { QuizDTO } from "@/types/api/main/quiz";
 
 export default function ProfileContent() {
-  const { me, isLoading } = useMe();
-  const { tribes } = useTribes();
-  const { interests } = useInterests();
+  const router = useRouter();
+  const { me } = useMe();
+  const { types } = useMyTypes();
+  const { submit, startRelevel } = useTypeCreation();
 
-  const primaryTribe = tribes.find((t) => t.id === me?.primaryTribeId);
-  const myInterests = interests.filter((i) =>
-    me?.interestIds.includes(i.id),
-  );
+  const [relevelQuiz, setRelevelQuiz] = useState<QuizDTO | null>(null);
+  const [relevelError, setRelevelError] = useState<string | null>(null);
+
+  const handleRelevel = (id: string) => {
+    setRelevelError(null);
+    startRelevel.mutate(id, {
+      onSuccess: (quiz) => setRelevelQuiz(quiz),
+      onError: (err: unknown) => {
+        const msg =
+          (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+          "อัปเลเวลไม่สำเร็จ ลองใหม่ภายหลัง";
+        setRelevelError(msg);
+      },
+    });
+  };
+
+  const handleRelevelSubmit = (answers: string[], elapsedSec: number) => {
+    if (!relevelQuiz) return;
+    submit.mutate(
+      { id: relevelQuiz.id, answers, elapsedSec },
+      { onSuccess: () => setRelevelQuiz(null) },
+    );
+  };
 
   return (
     <Container size="md" py="xl">
-      <LoadingOverlay visible={isLoading} />
       <Stack gap="xl">
         <Group gap="sm">
           <IconUser size={26} stroke={1.8} />
@@ -43,12 +64,7 @@ export default function ProfileContent() {
         {me && (
           <BaseCard withBorder padding="xl" shadow="sm">
             <Stack gap="lg" align="center" ta="center">
-              <Avatar
-                size={96}
-                radius="xl"
-                color={primaryTribe?.color ?? "ong-green"}
-                src={me.avatarUrl || null}
-              >
+              <Avatar size={96} radius="xl" color="ong-green" src={me.avatarUrl || null}>
                 {initials(me.displayName)}
               </Avatar>
               <Stack gap={4} align="center">
@@ -57,7 +73,6 @@ export default function ProfileContent() {
                   {me.age} ปี · {me.location}
                 </Text>
               </Stack>
-              {primaryTribe && <OngBadge tribe={primaryTribe} size="lg" />}
               {me.bio && (
                 <Text size="sm" maw={480}>
                   {me.bio}
@@ -68,70 +83,64 @@ export default function ProfileContent() {
         )}
 
         <Stack gap="sm">
-          <Group gap="xs">
-            <IconMedal size={20} stroke={1.8} />
-            <Text fw={700}>ไทป์ของคุณ</Text>
+          <Group justify="space-between">
+            <Group gap="xs">
+              <IconMedal size={20} stroke={1.8} />
+              <Text fw={700}>ไทป์ของคุณ</Text>
+            </Group>
+            <BaseButton
+              size="xs"
+              variant="light"
+              radius="xl"
+              leftSection={<IconPlus size={14} />}
+              onClick={() => router.push("/onboarding")}
+            >
+              สร้างไทป์ใหม่
+            </BaseButton>
           </Group>
-          <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="sm">
-            {tribes.map((tribe) => (
-              <BaseCard
-                key={tribe.id}
-                withBorder
-                shadow="none"
-                padding="sm"
-                style={{
-                  opacity: tribe.id === me?.primaryTribeId ? 1 : 0.5,
-                  borderColor:
-                    tribe.id === me?.primaryTribeId
-                      ? `var(--mantine-color-${tribe.color}-5)`
-                      : undefined,
-                }}
-              >
-                <Group gap="xs">
-                  <ThemeIcon
-                    size={36}
-                    radius="xl"
-                    variant="light"
-                    color={tribe.color}
-                  >
-                    <TribeIcon slug={tribe.slug} size={22} />
-                  </ThemeIcon>
-                  <Stack gap={2}>
-                    <Text size="sm" fw={600}>
-                      {tribe.name}
-                    </Text>
-                    {tribe.id === me?.primaryTribeId && (
-                      <Text size="xs" c="ong-green.7" fw={600}>
-                        ไทป์หลัก
-                      </Text>
-                    )}
-                  </Stack>
-                </Group>
-              </BaseCard>
-            ))}
-          </SimpleGrid>
-        </Stack>
 
-        <Stack gap="sm">
-          <Group gap="xs">
-            <IconSparkles size={20} stroke={1.8} />
-            <Text fw={700}>ความสนใจย่อย</Text>
-          </Group>
-          <Group gap="xs">
-            {myInterests.length > 0 ? (
-              myInterests.map((interest) => (
-                <Badge key={interest.id} size="sm" radius="xl" variant="light" color="gray">
-                  {interest.name}
-                </Badge>
-              ))
-            ) : (
-              <Text size="sm" c="dimmed">
-                ยังไม่ได้เลือกความสนใจย่อย
-              </Text>
-            )}
-          </Group>
+          {relevelError && (
+            <Text size="sm" c="red">
+              {relevelError}
+            </Text>
+          )}
+
+          {types.length > 0 ? (
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+              {types.map((type) => (
+                <TypeCard
+                  key={type.id}
+                  type={type}
+                  onRelevel={handleRelevel}
+                  relevelLoading={startRelevel.isPending && startRelevel.variables === type.id}
+                />
+              ))}
+            </SimpleGrid>
+          ) : (
+            <EmptyState
+              title="ยังไม่มีไทป์"
+              description="สร้างไทป์แรกของคุณ ผ่านแบบทดสอบเพื่อพิสูจน์ว่าคุณอินจริง"
+            >
+              <BaseButton mt="sm" onClick={() => router.push("/onboarding")}>
+                เริ่มสร้างไทป์
+              </BaseButton>
+            </EmptyState>
+          )}
         </Stack>
       </Stack>
+
+      <Modal
+        opened={!!relevelQuiz}
+        onClose={() => setRelevelQuiz(null)}
+        size="lg"
+        radius="lg"
+        title="อัปเลเวลไทป์"
+        centered
+      >
+        {relevelQuiz && (
+          <StepQuiz quiz={relevelQuiz} loading={submit.isPending} onSubmit={handleRelevelSubmit} />
+        )}
+      </Modal>
     </Container>
   );
 }

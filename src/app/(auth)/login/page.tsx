@@ -39,6 +39,7 @@ export default function LoginPage() {
       } else {
         // Demo mode: backend not required — just go to onboarding/discover.
         window.localStorage.setItem("ong-match-token", "demo-token");
+        window.localStorage.setItem("ong-match-email", email);
         router.push("/discover");
       }
     } catch {

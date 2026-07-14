@@ -18,7 +18,10 @@ const ongGreen: MantineColorsTuple = [
 
 const theme = createTheme({
   primaryColor: "ong-green",
-  defaultRadius: "xl",
+  primaryShade: { light: 6, dark: 5 },
+  defaultRadius: "lg",
+  autoContrast: true,
+  luminanceThreshold: 0.35,
   colors: {
     "ong-green": ongGreen,
   },
