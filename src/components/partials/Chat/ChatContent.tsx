@@ -57,6 +57,8 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
         display: "flex",
         gap: 12,
         height: "calc(100dvh - 120px)",
+        marginRight: "25%",
+        marginLeft: "25%",
         minHeight: 420,
       }}
     >

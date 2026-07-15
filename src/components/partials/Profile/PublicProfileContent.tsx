@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   Alert,
   Avatar,
+  Box,
   Container,
   Group,
   Loader,
@@ -62,9 +63,25 @@ export default function PublicProfileContent({ userId }: { userId: string }) {
           ย้อนกลับ
         </BaseButton>
 
-        <BaseCard withBorder padding="xl" shadow="sm">
-          <Stack gap="md" align="center" ta="center">
-            <Avatar size={88} radius="xl" color="ong-green" src={profile.avatar_url || null}>
+        <BaseCard withBorder padding={0} shadow="sm" style={{ overflow: "hidden" }}>
+          {/* Cover banner (falls back to a soft gradient when no image is set) */}
+          <Box
+            h={140}
+            style={{
+              background: profile.cover_url
+                ? `center / cover no-repeat url(${profile.cover_url})`
+                : "linear-gradient(135deg, var(--mantine-color-ong-green-3), var(--mantine-color-teal-2))",
+            }}
+          />
+          <Stack gap="md" align="center" ta="center" px="xl" pb="xl">
+            <Avatar
+              size={96}
+              radius="xl"
+              color="ong-green"
+              src={profile.avatar_url || null}
+              mt={-48}
+              style={{ border: "4px solid var(--mantine-color-body)" }}
+            >
               {initials(name)}
             </Avatar>
             <Stack gap={2} align="center">
