@@ -17,6 +17,7 @@ import { BaseInput } from "@/components/ui/Input";
 import { BaseModal } from "@/components/ui/Modal";
 import { useUpdateMe } from "@/hooks/user";
 import { fileToDataUrl } from "@/lib/image";
+import { uploadImage } from "@/services/upload.service";
 import { ageFromDob, initials } from "@/lib/utils";
 import type { User } from "@/types/app/user";
 
@@ -40,14 +41,18 @@ export default function ProfileEditModal({ me, opened, onClose }: Props) {
   const pickAvatar = async (file: File | null) => {
     if (!file) return;
     setBusy(true);
-    setAvatarUrl(await fileToDataUrl(file, 512));
+    const preview = await fileToDataUrl(file, 512);
+    setAvatarUrl(preview); // instant preview
+    setAvatarUrl(await uploadImage(preview)); // swap to the served URL
     setBusy(false);
   };
 
   const pickCover = async (file: File | null) => {
     if (!file) return;
     setBusy(true);
-    setCoverUrl(await fileToDataUrl(file, 1280, 0.82));
+    const preview = await fileToDataUrl(file, 1280, 0.82);
+    setCoverUrl(preview);
+    setCoverUrl(await uploadImage(preview));
     setBusy(false);
   };
 
