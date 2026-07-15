@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import {
   Alert,
   Badge,
@@ -11,10 +10,11 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconSparkles } from "@tabler/icons-react";
+import { IconAlertCircle, IconSparkles } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseInput } from "@/components/ui/Input";
 import { BaseCard } from "@/components/ui/Card";
+import { login, authErrorMessage } from "@/services/auth.service";
 import { APP_TEXT } from "@/constant/text/common";
 
 export default function LoginPage() {
@@ -29,22 +29,11 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-      if (res?.error) {
-        setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-      } else {
-        // Demo mode: backend not required — just go to onboarding/discover.
-        window.localStorage.setItem("ong-match-token", "demo-token");
-        window.localStorage.setItem("ong-match-email", email);
-        router.push("/discover");
-      }
-    } catch {
-      setError("เกิดข้อผิดพลาด ลองใหม่อีกครั้ง");
-    } finally {
+      // The backend verifies the password; a failure here means NOT signed in.
+      await login({ email, password });
+      router.push("/discover");
+    } catch (err) {
+      setError(authErrorMessage(err, "เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง"));
       setLoading(false);
     }
   };
@@ -68,7 +57,7 @@ export default function LoginPage() {
         </Stack>
 
         {error && (
-          <Alert color="red" variant="light" radius="md">
+          <Alert color="red" variant="light" radius="md" icon={<IconAlertCircle size={16} />}>
             {error}
           </Alert>
         )}

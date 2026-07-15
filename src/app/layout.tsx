@@ -3,7 +3,6 @@ import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import "./globals.css";
 import { UIProvider } from "@/components/providers/UIProvider";
 import { QueryProvider } from "@/context/query/QueryProvider";
-import { NextAuthProvider } from "@/context/auth/NextAuthProvider";
 
 export const metadata: Metadata = {
   title: "Ong Match — หาคนไทป์เดียวกัน",
@@ -22,11 +21,9 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
       <body>
-        <NextAuthProvider>
-          <QueryProvider>
-            <UIProvider>{children}</UIProvider>
-          </QueryProvider>
-        </NextAuthProvider>
+        <QueryProvider>
+          <UIProvider>{children}</UIProvider>
+        </QueryProvider>
       </body>
     </html>
   );

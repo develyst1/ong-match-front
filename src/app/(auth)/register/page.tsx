@@ -8,7 +8,7 @@ import { IconAlertCircle, IconSparkles } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseInput } from "@/components/ui/Input";
 import { BaseCard } from "@/components/ui/Card";
-import { updateMeApi } from "@/lib/api/api-main";
+import { register, authErrorMessage } from "@/services/auth.service";
 import { ageFromDob } from "@/lib/utils";
 import { APP_TEXT } from "@/constant/text/common";
 
@@ -29,27 +29,20 @@ export default function RegisterPage() {
       setError("กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)");
       return;
     }
+    if (password.length < 8) {
+      setError("รหัสผ่านต้องยาวอย่างน้อย 8 ตัว");
+      return;
+    }
     setLoading(true);
-    // Demo mode — no real auth backend; identify the user by email and persist
-    // the profile basics (name + age + phone) before the onboarding flow.
-    window.localStorage.setItem("ong-match-token", "demo-token");
-    window.localStorage.setItem("ong-match-email", email);
     const age = dob ? ageFromDob(new Date(dob)) : undefined;
     try {
-      await updateMeApi({ displayName: name, phone, ...(age ? { age } : {}) });
+      // Creates the real account (hashed password) and signs us in.
+      await register({ email, password, displayName: name, phone, ...(age ? { age } : {}) });
       router.push("/onboarding");
     } catch (err) {
-      // A duplicate phone (409) blocks registration — one account per phone.
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      if (status === 409) {
-        window.localStorage.removeItem("ong-match-token");
-        window.localStorage.removeItem("ong-match-email");
-        setError("เบอร์นี้ถูกใช้สมัครแล้ว หนึ่งเบอร์สมัครได้บัญชีเดียว");
-        setLoading(false);
-        return;
-      }
-      // Other errors: backend optional in demo mode — proceed.
-      router.push("/onboarding");
+      // 409 = email or phone already taken (one account per phone).
+      setError(authErrorMessage(err, "สมัครสมาชิกไม่สำเร็จ ลองใหม่อีกครั้ง"));
+      setLoading(false);
     }
   };
 
@@ -118,6 +111,7 @@ export default function RegisterPage() {
             <PasswordInput
               label="รหัสผ่าน"
               placeholder="••••••••"
+              description="อย่างน้อย 8 ตัวอักษร"
               radius="xl"
               size="md"
               value={password}
