@@ -3,6 +3,7 @@ import type {
   FeedItem,
   MatchingPerson,
   PublicProfile,
+  TrendingTag,
   TypeSearchItem,
 } from "@/types/api/main/social";
 import {
@@ -12,10 +13,19 @@ import {
   getFeedApi,
   getPeopleMatchesApi,
   getPublicProfileApi,
+  getTrendingTagsApi,
   searchTypesApi,
   unfollowApi,
 } from "@/lib/api/api-social";
 import { mockDelay } from "@/lib/api/mock-data";
+
+export const getTrendingTags = async (): Promise<TrendingTag[]> => {
+  try {
+    return (await getTrendingTagsApi()).data.data;
+  } catch {
+    return mockDelay([]);
+  }
+};
 
 export const getFeed = async (): Promise<FeedItem[]> => {
   try {

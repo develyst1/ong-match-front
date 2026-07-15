@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, type KeyboardEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Avatar,
   Badge,
@@ -24,11 +24,18 @@ import type { MatchingPerson, TypeSearchItem } from "@/types/api/main/social";
 
 export default function TribesContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { people } = usePeopleMatches();
   const [q, setQ] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
   const { results, isFetching } = useTypeSearch(q, tags);
+
+  // Pre-fill the tag filter when arriving from a trending tag (/tribes?tag=...).
+  const tagParam = searchParams.get("tag");
+  useEffect(() => {
+    if (tagParam) setTags((prev) => (prev.includes(tagParam) ? prev : [...prev, tagParam]));
+  }, [tagParam]);
 
   const addTag = () => {
     const t = tagDraft.trim();

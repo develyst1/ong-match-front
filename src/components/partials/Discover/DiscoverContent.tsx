@@ -20,6 +20,7 @@ import { EmptyState, LevelBadge } from "@/components/common";
 import { useFeed, useCreatePost, useFollow } from "@/hooks/social";
 import { initials, timeFromNow } from "@/lib/utils";
 import type { FeedItem } from "@/types/api/main/social";
+import TrendingTags from "./TrendingTags";
 
 export default function DiscoverContent() {
   const { feed, isLoading } = useFeed();
@@ -41,6 +42,9 @@ export default function DiscoverContent() {
           <IconHome size={26} stroke={1.8} />
           <Title order={2}>ฟีด</Title>
         </Group>
+
+        {/* Trending tag-groups (cluster of similar types by shared tag) */}
+        <TrendingTags />
 
         {/* Composer */}
         <BaseCard withBorder shadow="sm" padding="md">

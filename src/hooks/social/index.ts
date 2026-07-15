@@ -8,6 +8,7 @@ import {
   getFeed,
   getPeopleMatches,
   getPublicProfile,
+  getTrendingTags,
   searchTypes,
 } from "@/services/social.service";
 
@@ -39,6 +40,11 @@ export const useFollow = () => {
 export const usePeopleMatches = () => {
   const { data, isLoading } = useQuery({ queryKey: [...MATCHES_QUERY_KEY], queryFn: getPeopleMatches });
   return { people: data ?? [], isLoading };
+};
+
+export const useTrendingTags = () => {
+  const { data, isLoading } = useQuery({ queryKey: ["trending-tags"], queryFn: getTrendingTags });
+  return { tags: data ?? [], isLoading };
 };
 
 export const useTypeSearch = (q: string, tags: string[]) => {

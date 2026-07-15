@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import { TribesContent } from "@/components/partials/Tribes";
 
 export default function TribesPage() {
-  return <TribesContent />;
+  return (
+    <Suspense>
+      <TribesContent />
+    </Suspense>
+  );
 }

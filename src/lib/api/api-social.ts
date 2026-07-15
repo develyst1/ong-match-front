@@ -5,6 +5,7 @@ import type {
   FeedItem,
   MatchingPerson,
   PublicProfile,
+  TrendingTag,
   TypeSearchItem,
 } from "@/types/api/main/social";
 
@@ -27,6 +28,9 @@ export const searchTypesApi = (q: string, tags: string[]) =>
 
 export const getPeopleMatchesApi = () =>
   mainClient.get<ApiResponse<MatchingPerson[]>>("/api/v1/people/matches");
+
+export const getTrendingTagsApi = () =>
+  mainClient.get<ApiResponse<TrendingTag[]>>("/api/v1/tags/trending");
 
 export const getPublicProfileApi = (userId: string) =>
   mainClient.get<ApiResponse<PublicProfile>>(`/api/v1/users/${userId}`);

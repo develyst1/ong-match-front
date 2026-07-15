@@ -60,3 +60,10 @@ export interface ContactCheck {
   requiredLevel?: number;
   yourLevel?: number;
 }
+
+export interface TrendingTag {
+  tag: string;
+  people: number;
+  types: number;
+  sample_titles: string[];
+}
