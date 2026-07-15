@@ -120,8 +120,8 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
             <IconPlus size={16} stroke={2.5} />
             เพิ่มไทป์
           </UnstyledButton>
-          </Group> */}
-
+          */}
+          </Group>
           {/* User menu */}
           <Menu position="bottom-end" radius="md" shadow="md" width={180}>
             <Menu.Target>
