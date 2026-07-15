@@ -42,3 +42,20 @@ export interface ConversationMessage {
   created_at: string;
   isMine: boolean;
 }
+
+// ─── Group chat ("ไทป์รูม") — one room per tag ─────────────────────
+export interface RoomSummary {
+  tag: string;
+  members: number;
+  last_message: string | null;
+  last_message_at: string | null;
+}
+
+export interface RoomMessage {
+  id: string;
+  sender_id: string;
+  sender_name: string | null;
+  content: string;
+  created_at: string;
+  isMine: boolean;
+}

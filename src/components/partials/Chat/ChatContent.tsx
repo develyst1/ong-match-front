@@ -6,9 +6,9 @@ import { useMediaQuery } from "@mantine/hooks";
 import { IconArrowLeft, IconLayoutSidebar, IconMessageCircle } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { EmptyState } from "@/components/common";
-import { useChatRooms, useConversations } from "@/hooks/chat";
+import { useConversations, useRooms } from "@/hooks/chat";
 import type { ChatRoom } from "@/types/app/chat";
-import type { ConversationSummary } from "@/types/api/main/chat";
+import type { ConversationSummary, RoomSummary } from "@/types/api/main/chat";
 import { APP_TEXT } from "@/constant/text/common";
 import ChatRoomItem from "./ChatRoomItem";
 import ChatThread from "./ChatThread";
@@ -29,8 +29,22 @@ function convToRoom(c: ConversationSummary): ChatRoom {
   };
 }
 
+/** Map a tag-room to the shared ChatRoom shape (id = tag). */
+function tagRoomToRoom(r: RoomSummary): ChatRoom {
+  return {
+    id: r.tag,
+    type: "GROUP",
+    name: `#${r.tag}`,
+    lastMessage: r.last_message ?? undefined,
+    lastMessageAt: r.last_message_at ?? undefined,
+    unreadCount: 0,
+    participantsCount: r.members,
+    isReal: true,
+  };
+}
+
 export default function ChatContent({ initialRoomId }: { initialRoomId?: string }) {
-  const { rooms } = useChatRooms();
+  const { rooms } = useRooms();
   const { conversations } = useConversations();
   const [selected, setSelected] = useState<ChatRoom | undefined>(undefined);
   const [listOpen, setListOpen] = useState(true);
@@ -45,9 +59,9 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
     else setSelected(undefined); // mobile: back to the list
   };
 
-  // Real 1:1 conversations first, then the mock "ไทป์รูม" group rooms.
+  // Real 1:1 conversations first, then real tag-based "ไทป์รูม" group rooms.
   const privateRooms = conversations.map(convToRoom);
-  const groupRooms = rooms.filter((r) => r.type === "GROUP");
+  const groupRooms = rooms.map(tagRoomToRoom);
   const allRooms = [...privateRooms, ...groupRooms];
 
   useEffect(() => {
@@ -86,9 +100,13 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
                 <Text size="xs" c="dimmed" px="xs">ยังไม่มีแชต — ไปกด &quot;เริ่มคุย&quot; ที่โปรไฟล์คนอื่น</Text>
               )}
               <Text fw={700} size="xs" c="dimmed" tt="uppercase" mt="sm">{APP_TEXT.chat.ongRooms}</Text>
-              {groupRooms.map((room) => (
-                <ChatRoomItem key={room.id} room={room} active={selected?.id === room.id} onClick={() => pick(room)} />
-              ))}
+              {groupRooms.length > 0 ? (
+                groupRooms.map((room) => (
+                  <ChatRoomItem key={room.id} room={room} active={selected?.id === room.id} onClick={() => pick(room)} />
+                ))
+              ) : (
+                <Text size="xs" c="dimmed" px="xs">สร้างไทป์ที่มีแท็ก แล้วจะได้เข้าไทป์รูมของแท็กนั้นอัตโนมัติ</Text>
+              )}
             </Stack>
           </ScrollArea>
         </BaseCard>

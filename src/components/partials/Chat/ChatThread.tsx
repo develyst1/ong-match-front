@@ -19,6 +19,8 @@ import {
   useSendChatMessage,
   useConversationMessages,
   useSendConversationMessage,
+  useRoomMessages,
+  useSendRoomMessage,
 } from "@/hooks/chat";
 import { initials, timeFromNow } from "@/lib/utils";
 import type { ChatRoom } from "@/types/app/chat";
@@ -38,38 +40,58 @@ interface BubbleMsg {
 }
 
 export default function ChatThread({ room }: ChatThreadProps) {
-  const real = !!room.isReal;
+  const isGroup = room.type === "GROUP";
+  const useGroup = !!room.isReal && isGroup; // real tag-room
+  const usePrivate = !!room.isReal && !isGroup; // real 1:1
+  const useMock = !room.isReal; // legacy mock room
 
-  // Both hooks run but only the matching one is enabled, so we can branch cleanly.
-  const mock = useChatMessages({ roomId: real ? "" : room.id });
-  const convo = useConversationMessages(real ? room.id : undefined);
+  // Every hook runs but only the matching one is enabled, so we branch cleanly.
+  const mock = useChatMessages({ roomId: useMock ? room.id : "" });
+  const convo = useConversationMessages(usePrivate ? room.id : undefined);
+  const group = useRoomMessages(useGroup ? room.id : undefined);
   const sendMock = useSendChatMessage(room.id);
-  const sendReal = useSendConversationMessage(room.id);
+  const sendPrivate = useSendConversationMessage(room.id);
+  const sendGroup = useSendRoomMessage(room.id);
   const [draft, setDraft] = useState("");
 
-  const messages: BubbleMsg[] = real
-    ? convo.messages.map((m) => ({
-        id: m.id,
-        content: m.content,
-        senderName: m.isMine ? "คุณ" : room.name,
-        senderAvatarUrl: m.isMine ? undefined : room.avatarUrl,
-        createdAt: m.created_at,
-        isMine: m.isMine,
-      }))
-    : mock.messages.map((m) => ({
-        id: m.id,
-        content: m.content,
-        senderName: m.senderName,
-        senderAvatarUrl: m.senderAvatarUrl,
-        createdAt: m.createdAt,
-        isMine: m.isMine,
-      }));
-  const isLoading = real ? convo.isLoading : mock.isLoading;
+  let messages: BubbleMsg[];
+  let isLoading: boolean;
+  if (useGroup) {
+    messages = group.messages.map((m) => ({
+      id: m.id,
+      content: m.content,
+      senderName: m.isMine ? "คุณ" : m.sender_name ?? "สมาชิก",
+      createdAt: m.created_at,
+      isMine: m.isMine,
+    }));
+    isLoading = group.isLoading;
+  } else if (usePrivate) {
+    messages = convo.messages.map((m) => ({
+      id: m.id,
+      content: m.content,
+      senderName: m.isMine ? "คุณ" : room.name,
+      senderAvatarUrl: m.isMine ? undefined : room.avatarUrl,
+      createdAt: m.created_at,
+      isMine: m.isMine,
+    }));
+    isLoading = convo.isLoading;
+  } else {
+    messages = mock.messages.map((m) => ({
+      id: m.id,
+      content: m.content,
+      senderName: m.senderName,
+      senderAvatarUrl: m.senderAvatarUrl,
+      createdAt: m.createdAt,
+      isMine: m.isMine,
+    }));
+    isLoading = mock.isLoading;
+  }
 
   const handleSend = () => {
     const value = draft.trim();
     if (!value) return;
-    if (real) sendReal.mutate(value);
+    if (useGroup) sendGroup.mutate(value);
+    else if (usePrivate) sendPrivate.mutate(value);
     else sendMock.mutate(value);
     setDraft("");
   };
