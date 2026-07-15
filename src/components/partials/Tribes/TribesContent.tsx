@@ -9,6 +9,7 @@ import {
   Group,
   Loader,
   Pill,
+  Select,
   SimpleGrid,
   Stack,
   Text,
@@ -29,7 +30,20 @@ export default function TribesContent() {
   const [q, setQ] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
+  const [levelFilter, setLevelFilter] = useState<string>("all");
   const { results, isFetching } = useTypeSearch(q, tags);
+
+  // Seeker-side filter: keep matches whose level meets a threshold relative to mine.
+  const filteredPeople = people.filter((p) => {
+    const mine = p.my_level || 0;
+    switch (levelFilter) {
+      case "50": return p.type_level >= mine * 0.5;
+      case "80": return p.type_level >= mine * 0.8;
+      case "eq": return p.type_level >= mine;
+      case "higher": return p.type_level > mine;
+      default: return true;
+    }
+  });
 
   // Pre-fill the tag filter when arriving from a trending tag (/tribes?tag=...).
   const tagParam = searchParams.get("tag");
@@ -90,18 +104,37 @@ export default function TribesContent() {
         {/* Top: people whose types match yours, closest level first */}
         {q === "" && tags.length === 0 && (
           <Stack gap="sm">
-            <Group gap="xs">
-              <IconTargetArrow size={20} stroke={1.8} color="var(--mantine-color-ong-green-6)" />
-              <Text fw={700}>ไทป์ตรงคุณ · เลเวลใกล้เคียง</Text>
+            <Group justify="space-between" wrap="nowrap">
+              <Group gap="xs">
+                <IconTargetArrow size={20} stroke={1.8} color="var(--mantine-color-ong-green-6)" />
+                <Text fw={700}>ไทป์ตรงคุณ · เลเวลใกล้เคียง</Text>
+              </Group>
+              <Select
+                size="xs"
+                radius="xl"
+                w={168}
+                value={levelFilter}
+                onChange={(v) => setLevelFilter(v ?? "all")}
+                allowDeselect={false}
+                data={[
+                  { value: "all", label: "ทุกเลเวล" },
+                  { value: "50", label: "≥ 50% ของฉัน" },
+                  { value: "80", label: "≥ 80% ของฉัน" },
+                  { value: "eq", label: "≥ เท่าฉัน" },
+                  { value: "higher", label: "สูงกว่าฉัน" },
+                ]}
+              />
             </Group>
-            {people.length > 0 ? (
+            {filteredPeople.length > 0 ? (
               <Stack gap="sm">
-                {people.map((p) => (
+                {filteredPeople.map((p) => (
                   <PersonRow key={`${p.user_id}-${p.type_title}`} person={p} onOpen={() => router.push(`/u/${p.user_id}`)} />
                 ))}
               </Stack>
             ) : (
-              <Text size="sm" c="dimmed">ยังไม่มีคนตรงไทป์ — สร้างไทป์ให้มี tag ก่อนนะ</Text>
+              <Text size="sm" c="dimmed">
+                {people.length > 0 ? "ไม่มีคนตรงเงื่อนไขเลเวลนี้ ลองปรับตัวกรอง" : "ยังไม่มีคนตรงไทป์ — สร้างไทป์ให้มี tag ก่อนนะ"}
+              </Text>
             )}
           </Stack>
         )}
