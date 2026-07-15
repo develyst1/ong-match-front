@@ -24,3 +24,21 @@ export interface ChatMessageResponse {
   createdAt: string;
   isMine: boolean;
 }
+
+// ─── Real 1:1 chat (Phase 3.1) ─────────────────────────────────────
+export interface ConversationSummary {
+  id: string;
+  peer_id: string;
+  peer_name: string | null;
+  peer_avatar: string | null;
+  last_message: string | null;
+  last_message_at: string | null;
+}
+
+export interface ConversationMessage {
+  id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  isMine: boolean;
+}

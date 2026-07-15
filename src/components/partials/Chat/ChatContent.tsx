@@ -5,28 +5,46 @@ import { ActionIcon, Box, Group, ScrollArea, Stack, Text, Tooltip } from "@manti
 import { IconLayoutSidebar, IconMessageCircle } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { EmptyState } from "@/components/common";
-import { useChatRooms } from "@/hooks/chat";
+import { useChatRooms, useConversations } from "@/hooks/chat";
 import type { ChatRoom } from "@/types/app/chat";
+import type { ConversationSummary } from "@/types/api/main/chat";
 import { APP_TEXT } from "@/constant/text/common";
 import ChatRoomItem from "./ChatRoomItem";
 import ChatThread from "./ChatThread";
 
+/** Map a real backend conversation to the shared ChatRoom shape. */
+function convToRoom(c: ConversationSummary): ChatRoom {
+  return {
+    id: c.id,
+    type: "PRIVATE",
+    name: c.peer_name ?? "ไม่ระบุชื่อ",
+    avatarUrl: c.peer_avatar ?? undefined,
+    lastMessage: c.last_message ?? undefined,
+    lastMessageAt: c.last_message_at ?? undefined,
+    unreadCount: 0,
+    participantsCount: 2,
+    isReal: true,
+    peerId: c.peer_id,
+  };
+}
+
 export default function ChatContent({ initialRoomId }: { initialRoomId?: string }) {
   const { rooms } = useChatRooms();
-  const [selected, setSelected] = useState<ChatRoom | undefined>(
-    rooms.find((r) => r.id === initialRoomId),
-  );
+  const { conversations } = useConversations();
+  const [selected, setSelected] = useState<ChatRoom | undefined>(undefined);
   const [listOpen, setListOpen] = useState(true);
+
+  // Real 1:1 conversations first, then the mock "ไทป์รูม" group rooms.
+  const privateRooms = conversations.map(convToRoom);
+  const groupRooms = rooms.filter((r) => r.type === "GROUP");
+  const allRooms = [...privateRooms, ...groupRooms];
 
   useEffect(() => {
     if (initialRoomId && !selected) {
-      const found = rooms.find((r) => r.id === initialRoomId);
+      const found = allRooms.find((r) => r.id === initialRoomId);
       if (found) setSelected(found);
     }
-  }, [initialRoomId, rooms, selected]);
-
-  const groupRooms = rooms.filter((r) => r.type === "GROUP");
-  const privateRooms = rooms.filter((r) => r.type === "PRIVATE");
+  }, [initialRoomId, allRooms, selected]);
 
   const pick = (room: ChatRoom) => {
     setSelected(room);
@@ -47,17 +65,18 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
         <BaseCard withBorder shadow="none" p="xs" style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column" }}>
           <ScrollArea style={{ flex: 1 }}>
             <Stack gap="xs" p="xs">
-              <Text fw={700} size="xs" c="dimmed" tt="uppercase">{APP_TEXT.chat.ongRooms}</Text>
+              <Text fw={700} size="xs" c="dimmed" tt="uppercase">{APP_TEXT.chat.privateChats}</Text>
+              {privateRooms.length > 0 ? (
+                privateRooms.map((room) => (
+                  <ChatRoomItem key={room.id} room={room} active={selected?.id === room.id} onClick={() => pick(room)} />
+                ))
+              ) : (
+                <Text size="xs" c="dimmed" px="xs">ยังไม่มีแชต — ไปกด &quot;เริ่มคุย&quot; ที่โปรไฟล์คนอื่น</Text>
+              )}
+              <Text fw={700} size="xs" c="dimmed" tt="uppercase" mt="sm">{APP_TEXT.chat.ongRooms}</Text>
               {groupRooms.map((room) => (
                 <ChatRoomItem key={room.id} room={room} active={selected?.id === room.id} onClick={() => pick(room)} />
               ))}
-              <Text fw={700} size="xs" c="dimmed" tt="uppercase" mt="sm">{APP_TEXT.chat.privateChats}</Text>
-              {privateRooms.map((room) => (
-                <ChatRoomItem key={room.id} room={room} active={selected?.id === room.id} onClick={() => pick(room)} />
-              ))}
-              {rooms.length === 0 && (
-                <Text size="sm" c="dimmed" ta="center" py="md">{APP_TEXT.chat.noRoom}</Text>
-              )}
             </Stack>
           </ScrollArea>
         </BaseCard>

@@ -17,6 +17,7 @@ import { BaseCard } from "@/components/ui/Card";
 import { BaseButton } from "@/components/ui/Button";
 import { CompactTypeRow } from "@/components/common";
 import { usePublicProfile, useFollow, useCanContact } from "@/hooks/social";
+import { useStartConversation } from "@/hooks/chat";
 import { initials } from "@/lib/utils";
 
 export default function PublicProfileContent({ userId }: { userId: string }) {
@@ -24,7 +25,13 @@ export default function PublicProfileContent({ userId }: { userId: string }) {
   const { profile, isLoading } = usePublicProfile(userId);
   const { contact } = useCanContact(userId);
   const follow = useFollow();
+  const startChat = useStartConversation();
   const [following, setFollowing] = useState(false);
+
+  const openChat = () =>
+    startChat.mutate(userId, {
+      onSuccess: (convId) => router.push(`/chat/${convId}`),
+    });
 
   if (isLoading) {
     return (
@@ -72,9 +79,10 @@ export default function PublicProfileContent({ userId }: { userId: string }) {
               <BaseButton
                 radius="xl"
                 variant="light"
+                loading={startChat.isPending}
                 disabled={contact ? !contact.allowed : true}
                 leftSection={contact && !contact.allowed ? <IconLock size={16} /> : <IconMessage size={16} />}
-                onClick={() => router.push("/chat")}
+                onClick={openChat}
               >
                 เริ่มคุย
               </BaseButton>

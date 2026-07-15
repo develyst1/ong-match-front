@@ -12,6 +12,10 @@ export interface ChatRoom {
   lastMessageAt?: string;
   unreadCount: number;
   participantsCount: number;
+  /** True for real backend 1:1 conversations (vs mock group rooms). */
+  isReal?: boolean;
+  /** The other user's id, for real conversations. */
+  peerId?: string;
 }
 
 export interface ChatMessage {

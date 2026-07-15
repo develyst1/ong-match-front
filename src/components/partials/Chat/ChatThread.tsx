@@ -14,7 +14,12 @@ import {
 import { useState } from "react";
 import { IconMessageCircle, IconSend, IconUsersGroup } from "@tabler/icons-react";
 import { EmptyState } from "@/components/common";
-import { useChatMessages, useSendChatMessage } from "@/hooks/chat";
+import {
+  useChatMessages,
+  useSendChatMessage,
+  useConversationMessages,
+  useSendConversationMessage,
+} from "@/hooks/chat";
 import { initials, timeFromNow } from "@/lib/utils";
 import type { ChatRoom } from "@/types/app/chat";
 import { APP_TEXT } from "@/constant/text/common";
@@ -23,15 +28,49 @@ interface ChatThreadProps {
   room: ChatRoom;
 }
 
+interface BubbleMsg {
+  id: string;
+  content: string;
+  senderName: string;
+  senderAvatarUrl?: string;
+  createdAt: string;
+  isMine: boolean;
+}
+
 export default function ChatThread({ room }: ChatThreadProps) {
-  const { messages, isLoading } = useChatMessages({ roomId: room.id });
-  const send = useSendChatMessage(room.id);
+  const real = !!room.isReal;
+
+  // Both hooks run but only the matching one is enabled, so we can branch cleanly.
+  const mock = useChatMessages({ roomId: real ? "" : room.id });
+  const convo = useConversationMessages(real ? room.id : undefined);
+  const sendMock = useSendChatMessage(room.id);
+  const sendReal = useSendConversationMessage(room.id);
   const [draft, setDraft] = useState("");
+
+  const messages: BubbleMsg[] = real
+    ? convo.messages.map((m) => ({
+        id: m.id,
+        content: m.content,
+        senderName: m.isMine ? "คุณ" : room.name,
+        senderAvatarUrl: m.isMine ? undefined : room.avatarUrl,
+        createdAt: m.created_at,
+        isMine: m.isMine,
+      }))
+    : mock.messages.map((m) => ({
+        id: m.id,
+        content: m.content,
+        senderName: m.senderName,
+        senderAvatarUrl: m.senderAvatarUrl,
+        createdAt: m.createdAt,
+        isMine: m.isMine,
+      }));
+  const isLoading = real ? convo.isLoading : mock.isLoading;
 
   const handleSend = () => {
     const value = draft.trim();
     if (!value) return;
-    send.mutate(value);
+    if (real) sendReal.mutate(value);
+    else sendMock.mutate(value);
     setDraft("");
   };
 
@@ -56,7 +95,7 @@ export default function ChatThread({ room }: ChatThreadProps) {
               {room.name}
             </Text>
             <Text size="xs" c="dimmed">
-              {room.participantsCount.toLocaleString()} คน
+              {room.type === "GROUP" ? `${room.participantsCount.toLocaleString()} คน` : "แชตส่วนตัว"}
             </Text>
           </Stack>
         </Group>
