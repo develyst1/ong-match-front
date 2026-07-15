@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Avatar,
+  Box,
   Container,
   Group,
   Modal,
@@ -11,13 +12,14 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconMedal, IconPlus, IconUser } from "@tabler/icons-react";
+import { IconMedal, IconPencil, IconPlus, IconUser } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { BaseButton } from "@/components/ui/Button";
 import { EmptyState, CompactTypeRow } from "@/components/common";
 import { StepQuiz } from "@/components/partials/CreateType";
+import ProfileEditModal from "./ProfileEditModal";
 import { useMe } from "@/hooks/user";
-import { useMyTypes, useTypeCreation } from "@/hooks/type";
+import { useMyTypes, useSetTypeRequirement, useTypeCreation } from "@/hooks/type";
 import { initials } from "@/lib/utils";
 import { APP_TEXT } from "@/constant/text/common";
 import type { QuizDTO } from "@/types/api/main/quiz";
@@ -27,9 +29,11 @@ export default function ProfileContent() {
   const { me } = useMe();
   const { types } = useMyTypes();
   const { submit, startRelevel } = useTypeCreation();
+  const setRequirement = useSetTypeRequirement();
 
   const [relevelQuiz, setRelevelQuiz] = useState<QuizDTO | null>(null);
   const [relevelError, setRelevelError] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const handleRelevel = (id: string) => {
     setRelevelError(null);
@@ -61,15 +65,29 @@ export default function ProfileContent() {
         </Group>
 
         {me && (
-          <BaseCard withBorder padding="xl" shadow="sm">
-            <Stack gap="lg" align="center" ta="center">
-              <Avatar size={96} radius="xl" color="ong-green" src={me.avatarUrl || null}>
+          <BaseCard withBorder padding={0} shadow="sm" style={{ overflow: "hidden" }}>
+            <Box
+              style={{
+                height: 140,
+                background: me.coverUrl
+                  ? `center / cover no-repeat url(${me.coverUrl})`
+                  : "linear-gradient(120deg, var(--mantine-color-ong-green-3), var(--mantine-color-teal-2))",
+              }}
+            />
+            <Stack gap="md" align="center" ta="center" px="xl" pb="xl" mt={-52}>
+              <Avatar
+                size={104}
+                radius="xl"
+                color="ong-green"
+                src={me.avatarUrl || null}
+                style={{ border: "4px solid var(--mantine-color-body)" }}
+              >
                 {initials(me.displayName)}
               </Avatar>
               <Stack gap={4} align="center">
                 <Title order={3}>{me.displayName}</Title>
                 <Text size="sm" c="dimmed">
-                  {me.age} ปี · {me.location}
+                  {[me.age ? `${me.age} ปี` : null, me.location].filter(Boolean).join(" · ")}
                 </Text>
               </Stack>
               {me.bio && (
@@ -77,6 +95,14 @@ export default function ProfileContent() {
                   {me.bio}
                 </Text>
               )}
+              <BaseButton
+                variant="light"
+                radius="xl"
+                leftSection={<IconPencil size={16} />}
+                onClick={() => setEditOpen(true)}
+              >
+                แก้ไขโปรไฟล์
+              </BaseButton>
             </Stack>
           </BaseCard>
         )}
@@ -115,6 +141,9 @@ export default function ProfileContent() {
                   status={type.status}
                   onRelevel={() => handleRelevel(type.id)}
                   relevelLoading={startRelevel.isPending && startRelevel.variables === type.id}
+                  minContactLevel={type.minContactLevel}
+                  onRequirementChange={(minLevel) => setRequirement.mutate({ id: type.id, minLevel })}
+                  requirementLoading={setRequirement.isPending && setRequirement.variables?.id === type.id}
                 />
               ))}
             </Stack>
@@ -130,6 +159,10 @@ export default function ProfileContent() {
           )}
         </Stack>
       </Stack>
+
+      {me && (
+        <ProfileEditModal me={me} opened={editOpen} onClose={() => setEditOpen(false)} />
+      )}
 
       <Modal
         opened={!!relevelQuiz}

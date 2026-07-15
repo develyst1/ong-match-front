@@ -30,6 +30,17 @@ export interface ValidateTypeResponse {
   quiz: QuizDTO;
 }
 
+/** One AI-proposed type the user can pick from after telling their story. */
+export interface TypeCandidate {
+  title: string;
+  blurb: string;
+  tags: string[];
+}
+
+export interface SuggestTypesResponse {
+  candidates: TypeCandidate[];
+}
+
 export interface QuizFeedback {
   id: string;
   correct: boolean;
@@ -54,4 +65,5 @@ export interface MyType {
   level: number;
   status: string;
   daysLeft: number;
+  minContactLevel: number;
 }

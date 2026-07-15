@@ -52,3 +52,11 @@ export interface PublicProfile {
   location: string | null;
   types: PublicProfileType[];
 }
+
+export interface ContactCheck {
+  allowed: boolean;
+  reason: string;
+  typeTitle?: string;
+  requiredLevel?: number;
+  yourLevel?: number;
+}

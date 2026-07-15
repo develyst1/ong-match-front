@@ -9,6 +9,7 @@ export interface User {
   age: number;
   location: string;
   avatarUrl: string;
+  coverUrl?: string;
   primaryTribeId: string;
   interestIds: string[];
   activityLevel: ActivityLevel;
@@ -31,6 +32,8 @@ export interface UserProfileFormValues {
   bio: string;
   age: number;
   location: string;
+  avatarUrl?: string;
+  coverUrl?: string;
   primaryTribeId: string;
   interestIds: string[];
   activityLevel: ActivityLevel;

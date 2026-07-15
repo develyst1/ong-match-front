@@ -9,6 +9,8 @@ export interface UserResponse {
   age: number;
   location: string;
   avatarUrl: string;
+  coverUrl?: string;
+  phone?: string;
   primaryTribeId: string;
   interestIds: string[];
   activityLevel: ActivityLevel;

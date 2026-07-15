@@ -1,4 +1,5 @@
 import type {
+  ContactCheck,
   FeedItem,
   MatchingPerson,
   PublicProfile,
@@ -7,6 +8,7 @@ import type {
 import {
   createPostApi,
   followApi,
+  getCanContactApi,
   getFeedApi,
   getPeopleMatchesApi,
   getPublicProfileApi,
@@ -61,5 +63,14 @@ export const getPublicProfile = async (userId: string): Promise<PublicProfile | 
     return (await getPublicProfileApi(userId)).data.data;
   } catch {
     return mockDelay(null);
+  }
+};
+
+export const getCanContact = async (userId: string): Promise<ContactCheck> => {
+  try {
+    return (await getCanContactApi(userId)).data.data;
+  } catch {
+    // Backend down — don't block chat in demo mode.
+    return mockDelay({ allowed: true, reason: "" });
   }
 };
