@@ -12,6 +12,18 @@ body {
   background: var(--mantine-color-gray-0);
 }
 
+/* Chat shell: full width on mobile, narrowed (desktop-tuned) from sm up. */
+.ong-chat-shell {
+  margin-left: 0;
+  margin-right: 0;
+}
+@media (min-width: 48em) {
+  .ong-chat-shell {
+    margin-left: 25%;
+    margin-right: 25%;
+  }
+}
+
 /* Smooth, warm gradient backdrop for the landing page */
 .ong-landing-bg {
   background: radial-gradient(

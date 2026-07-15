@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ActionIcon, Box, Group, ScrollArea, Stack, Text, Tooltip } from "@mantine/core";
-import { IconLayoutSidebar, IconMessageCircle } from "@tabler/icons-react";
+import { useMediaQuery } from "@mantine/hooks";
+import { IconArrowLeft, IconLayoutSidebar, IconMessageCircle } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { EmptyState } from "@/components/common";
 import { useChatRooms, useConversations } from "@/hooks/chat";
@@ -33,6 +34,16 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
   const { conversations } = useConversations();
   const [selected, setSelected] = useState<ChatRoom | undefined>(undefined);
   const [listOpen, setListOpen] = useState(true);
+  const isDesktop = useMediaQuery("(min-width: 48em)", true);
+
+  // Desktop: list (toggle) + thread side by side. Mobile: master-detail —
+  // show the list OR the open thread, never both squeezed together.
+  const showList = isDesktop ? listOpen : !selected;
+  const showThread = isDesktop ? true : !!selected;
+  const toggleList = () => {
+    if (isDesktop) setListOpen((o) => !o);
+    else setSelected(undefined); // mobile: back to the list
+  };
 
   // Real 1:1 conversations first, then the mock "ไทป์รูม" group rooms.
   const privateRooms = conversations.map(convToRoom);
@@ -53,18 +64,17 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
 
   return (
     <Box
+      className="ong-chat-shell"
       style={{
         display: "flex",
         gap: 12,
         height: "calc(100dvh - 120px)",
-        marginRight: "25%",
-        marginLeft: "25%",
         minHeight: 420,
       }}
     >
-      {/* Collapsible conversation list */}
-      {listOpen && (
-        <BaseCard withBorder shadow="none" p="xs" style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column" }}>
+      {/* Collapsible conversation list (full width on mobile, 300px on desktop) */}
+      {showList && (
+        <BaseCard withBorder shadow="none" p="xs" style={{ width: isDesktop ? 300 : "100%", flexShrink: 0, display: "flex", flexDirection: "column" }}>
           <ScrollArea style={{ flex: 1 }}>
             <Stack gap="xs" p="xs">
               <Text fw={700} size="xs" c="dimmed" tt="uppercase">{APP_TEXT.chat.privateChats}</Text>
@@ -85,11 +95,12 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
       )}
 
       {/* Thread — fills the rest */}
+      {showThread && (
       <BaseCard withBorder shadow="none" p={0} style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <Group gap="xs" px="sm" py="xs" style={{ borderBottom: "1px solid var(--mantine-color-gray-2)" }}>
-          <Tooltip label={listOpen ? "ซ่อนรายการแชต" : "แสดงรายการแชต"}>
-            <ActionIcon variant="subtle" color="gray" onClick={() => setListOpen((o) => !o)}>
-              <IconLayoutSidebar size={20} />
+          <Tooltip label={isDesktop ? (listOpen ? "ซ่อนรายการแชต" : "แสดงรายการแชต") : "กลับไปรายการแชต"}>
+            <ActionIcon variant="subtle" color="gray" onClick={toggleList}>
+              {isDesktop ? <IconLayoutSidebar size={20} /> : <IconArrowLeft size={20} />}
             </ActionIcon>
           </Tooltip>
           <Text fw={700} size="sm" lineClamp={1}>
@@ -109,6 +120,7 @@ export default function ChatContent({ initialRoomId }: { initialRoomId?: string 
           )}
         </Box>
       </BaseCard>
+      )}
     </Box>
   );
 }
