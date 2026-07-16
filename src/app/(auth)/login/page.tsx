@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/services/auth.service";
 import {
   Alert,
   Badge,
@@ -11,10 +10,11 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconSparkles } from "@tabler/icons-react";
+import { IconAlertCircle, IconSparkles } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseInput } from "@/components/ui/Input";
 import { BaseCard } from "@/components/ui/Card";
+import { login, authErrorMessage } from "@/services/auth.service";
 import { APP_TEXT } from "@/constant/text/common";
 
 export default function LoginPage() {
@@ -29,12 +29,11 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      await login(email, password);
+      // The backend verifies the password; a failure here means NOT signed in.
+      await login({ email, password });
       router.push("/discover");
     } catch (err) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      setError(status === 401 ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง" : "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง");
-    } finally {
+      setError(authErrorMessage(err, "เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง"));
       setLoading(false);
     }
   };
@@ -58,7 +57,7 @@ export default function LoginPage() {
         </Stack>
 
         {error && (
-          <Alert color="red" variant="light" radius="md">
+          <Alert color="red" variant="light" radius="md" icon={<IconAlertCircle size={16} />}>
             {error}
           </Alert>
         )}

@@ -8,8 +8,7 @@ import { IconAlertCircle, IconSparkles } from "@tabler/icons-react";
 import { BaseButton } from "@/components/ui/Button";
 import { BaseInput } from "@/components/ui/Input";
 import { BaseCard } from "@/components/ui/Card";
-import { updateMeApi } from "@/lib/api/api-main";
-import { register } from "@/services/auth.service";
+import { register, authErrorMessage } from "@/services/auth.service";
 import { ageFromDob } from "@/lib/utils";
 import { APP_TEXT } from "@/constant/text/common";
 
@@ -30,35 +29,20 @@ export default function RegisterPage() {
       setError("กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)");
       return;
     }
-    if (password.length < 6) {
-      setError("รหัสผ่านอย่างน้อย 6 ตัวอักษร");
+    if (password.length < 8) {
+      setError("รหัสผ่านต้องยาวอย่างน้อย 8 ตัว");
       return;
     }
     setLoading(true);
-
-    // 1) Create the real account (email + password) → stores the JWT.
-    try {
-      await register(email, password, name);
-    } catch (err) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      setError(status === 409 ? "อีเมลนี้ถูกใช้แล้ว" : "สมัครไม่สำเร็จ ลองใหม่อีกครั้ง");
-      setLoading(false);
-      return;
-    }
-
-    // 2) Save profile basics (phone is unique — one account per phone).
     const age = dob ? ageFromDob(new Date(dob)) : undefined;
     try {
-      await updateMeApi({ displayName: name, phone, ...(age ? { age } : {}) });
+      // Creates the real account (hashed password) and signs us in.
+      await register({ email, password, displayName: name, phone, ...(age ? { age } : {}) });
       router.push("/onboarding");
     } catch (err) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      if (status === 409) {
-        setError("เบอร์นี้ถูกใช้สมัครแล้ว หนึ่งเบอร์สมัครได้บัญชีเดียว");
-        setLoading(false);
-        return;
-      }
-      router.push("/onboarding"); // account created; profile can be edited later
+      // 409 = email or phone already taken (one account per phone).
+      setError(authErrorMessage(err, "สมัครสมาชิกไม่สำเร็จ ลองใหม่อีกครั้ง"));
+      setLoading(false);
     }
   };
 
@@ -127,6 +111,7 @@ export default function RegisterPage() {
             <PasswordInput
               label="รหัสผ่าน"
               placeholder="••••••••"
+              description="อย่างน้อย 8 ตัวอักษร"
               radius="xl"
               size="md"
               value={password}

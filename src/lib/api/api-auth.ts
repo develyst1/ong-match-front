@@ -1,13 +1,9 @@
 import { mainClient } from "./client";
 import type { ApiResponse } from "@/types/api/main/common";
+import type { AuthResponse, LoginBody, RegisterBody } from "@/types/api/main/auth";
 
-export interface AuthResult {
-  token: string;
-  user: { id: string; email: string };
-}
+export const loginApi = (body: LoginBody) =>
+  mainClient.post<ApiResponse<AuthResponse>>("/api/v1/auth/login", body);
 
-export const registerApi = (body: { email: string; password: string; displayName?: string }) =>
-  mainClient.post<ApiResponse<AuthResult>>("/api/v1/auth/register", body);
-
-export const loginApi = (body: { email: string; password: string }) =>
-  mainClient.post<ApiResponse<AuthResult>>("/api/v1/auth/login", body);
+export const registerApi = (body: RegisterBody) =>
+  mainClient.post<ApiResponse<AuthResponse>>("/api/v1/auth/register", body);

@@ -8,7 +8,8 @@ export function applyInterceptors(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
       config.headers = config.headers ?? {};
-      // Real auth: the backend verifies this JWT and derives the user from it.
+      // The signed token is the only identity the backend accepts. (The old
+      // `x-user-email` header let any caller pick who they were.)
       const token = window.localStorage.getItem("ong-match-token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -25,6 +26,9 @@ export function applyInterceptors(instance: AxiosInstance) {
         error?.response?.status === 401 &&
         !window.location.pathname.startsWith("/login")
       ) {
+        // The token is missing/expired/invalid — drop it and re-authenticate.
+        window.localStorage.removeItem("ong-match-token");
+        window.localStorage.removeItem("ong-match-email");
         window.location.href = "/login";
       }
       return Promise.reject(error);
