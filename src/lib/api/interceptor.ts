@@ -8,13 +8,11 @@ export function applyInterceptors(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
       config.headers = config.headers ?? {};
+      // Real auth: the backend verifies this JWT and derives the user from it.
       const token = window.localStorage.getItem("ong-match-token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-      // Backend identifies the caller by email (Phase 1 auth shortcut).
-      const email = window.localStorage.getItem("ong-match-email") ?? "guest@ongmatch.th";
-      config.headers["x-user-email"] = email;
     }
     return config;
   });

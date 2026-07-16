@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { login } from "@/services/auth.service";
 import {
   Alert,
   Badge,
@@ -29,21 +29,11 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-      if (res?.error) {
-        setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-      } else {
-        // Demo mode: backend not required — just go to onboarding/discover.
-        window.localStorage.setItem("ong-match-token", "demo-token");
-        window.localStorage.setItem("ong-match-email", email);
-        router.push("/discover");
-      }
-    } catch {
-      setError("เกิดข้อผิดพลาด ลองใหม่อีกครั้ง");
+      await login(email, password);
+      router.push("/discover");
+    } catch (err) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      setError(status === 401 ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง" : "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง");
     } finally {
       setLoading(false);
     }
