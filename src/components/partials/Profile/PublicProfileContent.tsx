@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Alert,
   Avatar,
   Box,
   Container,
@@ -12,12 +11,12 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconArrowLeft, IconLock, IconMessage } from "@tabler/icons-react";
+import { IconArrowLeft, IconLock, IconMedal, IconMessage, IconNotebook } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { BaseCard } from "@/components/ui/Card";
 import { BaseButton } from "@/components/ui/Button";
-import { CompactTypeRow } from "@/components/common";
-import { usePublicProfile, useFollow, useCanContact } from "@/hooks/social";
+import { CompactTypeRow, ContactGateCard, ProfilePostCard } from "@/components/common";
+import { usePublicProfile, useFollow, useCanContact, useUserPosts } from "@/hooks/social";
 import { useStartConversation } from "@/hooks/chat";
 import { initials } from "@/lib/utils";
 
@@ -25,6 +24,7 @@ export default function PublicProfileContent({ userId }: { userId: string }) {
   const router = useRouter();
   const { profile, isLoading } = usePublicProfile(userId);
   const { contact } = useCanContact(userId);
+  const { posts } = useUserPosts(userId);
   const follow = useFollow();
   const startChat = useStartConversation();
   const [following, setFollowing] = useState(false);
@@ -104,16 +104,16 @@ export default function PublicProfileContent({ userId }: { userId: string }) {
                 เริ่มคุย
               </BaseButton>
             </Group>
-            {contact && !contact.allowed && (
-              <Alert color="gray" variant="light" radius="md" icon={<IconLock size={16} />} maw={420}>
-                {contact.reason}
-              </Alert>
-            )}
           </Stack>
         </BaseCard>
 
+        {contact && !contact.allowed && <ContactGateCard contact={contact} name={name} />}
+
         <Stack gap="sm">
-          <Text fw={700}>ไทป์ ({profile.types.length})</Text>
+          <Group gap="xs">
+            <IconMedal size={20} stroke={1.8} color="var(--mantine-color-ong-green-6)" />
+            <Text fw={700}>ไทป์ ({profile.types.length})</Text>
+          </Group>
           {profile.types.length > 0 ? (
             <Stack gap="xs">
               {profile.types.map((t) => (
@@ -122,6 +122,22 @@ export default function PublicProfileContent({ userId }: { userId: string }) {
             </Stack>
           ) : (
             <Text size="sm" c="dimmed">ยังไม่มีไทป์</Text>
+          )}
+        </Stack>
+
+        <Stack gap="sm">
+          <Group gap="xs">
+            <IconNotebook size={20} stroke={1.8} color="var(--mantine-color-ong-green-6)" />
+            <Text fw={700}>โพสต์ ({posts.length})</Text>
+          </Group>
+          {posts.length > 0 ? (
+            <Stack gap="sm">
+              {posts.map((p) => (
+                <ProfilePostCard key={p.id} post={p} />
+              ))}
+            </Stack>
+          ) : (
+            <Text size="sm" c="dimmed">ยังไม่มีโพสต์</Text>
           )}
         </Stack>
       </Stack>

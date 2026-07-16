@@ -7,6 +7,7 @@ import type {
   PublicProfile,
   TrendingTag,
   TypeSearchItem,
+  UserPost,
 } from "@/types/api/main/social";
 
 export const getFeedApi = () =>
@@ -37,3 +38,6 @@ export const getPublicProfileApi = (userId: string) =>
 
 export const getCanContactApi = (userId: string) =>
   mainClient.get<ApiResponse<ContactCheck>>(`/api/v1/users/${userId}/can-contact`);
+
+export const getUserPostsApi = (userId: string) =>
+  mainClient.get<ApiResponse<UserPost[]>>(`/api/v1/users/${userId}/posts`);

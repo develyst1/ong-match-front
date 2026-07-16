@@ -5,6 +5,7 @@ import type {
   PublicProfile,
   TrendingTag,
   TypeSearchItem,
+  UserPost,
 } from "@/types/api/main/social";
 import {
   createPostApi,
@@ -14,10 +15,19 @@ import {
   getPeopleMatchesApi,
   getPublicProfileApi,
   getTrendingTagsApi,
+  getUserPostsApi,
   searchTypesApi,
   unfollowApi,
 } from "@/lib/api/api-social";
 import { mockDelay } from "@/lib/api/mock-data";
+
+export const getUserPosts = async (userId: string): Promise<UserPost[]> => {
+  try {
+    return (await getUserPostsApi(userId)).data.data;
+  } catch {
+    return mockDelay([]);
+  }
+};
 
 export const getTrendingTags = async (): Promise<TrendingTag[]> => {
   try {

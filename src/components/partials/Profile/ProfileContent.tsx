@@ -12,13 +12,14 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconMedal, IconPencil, IconPlus, IconUser } from "@tabler/icons-react";
+import { IconMedal, IconNotebook, IconPencil, IconPlus, IconUser } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import { BaseButton } from "@/components/ui/Button";
-import { EmptyState, CompactTypeRow } from "@/components/common";
+import { EmptyState, CompactTypeRow, ProfilePostCard } from "@/components/common";
 import { StepQuiz } from "@/components/partials/CreateType";
 import ProfileEditModal from "./ProfileEditModal";
 import { useMe } from "@/hooks/user";
+import { useUserPosts } from "@/hooks/social";
 import { useMyTypes, useSetTypeRequirement, useTypeCreation } from "@/hooks/type";
 import { initials } from "@/lib/utils";
 import { APP_TEXT } from "@/constant/text/common";
@@ -28,6 +29,7 @@ export default function ProfileContent() {
   const router = useRouter();
   const { me } = useMe();
   const { types } = useMyTypes();
+  const { posts } = useUserPosts(me?.id);
   const { submit, startRelevel } = useTypeCreation();
   const setRequirement = useSetTypeRequirement();
 
@@ -156,6 +158,22 @@ export default function ProfileContent() {
                 เริ่มสร้างไทป์
               </BaseButton>
             </EmptyState>
+          )}
+        </Stack>
+
+        <Stack gap="sm">
+          <Group gap="xs">
+            <IconNotebook size={20} stroke={1.8} />
+            <Text fw={700}>โพสต์ของคุณ ({posts.length})</Text>
+          </Group>
+          {posts.length > 0 ? (
+            <Stack gap="sm">
+              {posts.map((p) => (
+                <ProfilePostCard key={p.id} post={p} />
+              ))}
+            </Stack>
+          ) : (
+            <Text size="sm" c="dimmed">ยังไม่มีโพสต์ — แชร์เรื่องไทป์ของคุณที่หน้าฟีด</Text>
           )}
         </Stack>
       </Stack>

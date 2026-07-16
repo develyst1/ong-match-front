@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ActionIcon, Group, NumberInput, Stack, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Box, Group, NumberInput, Stack, Text, Tooltip } from "@mantine/core";
 import { IconClockHour4, IconArrowUp, IconMessage2Cog } from "@tabler/icons-react";
 import { BaseCard } from "@/components/ui/Card";
 import LevelBadge from "./LevelBadge";
@@ -64,25 +64,47 @@ export default function CompactTypeRow({
         </Group>
 
         {onRequirementChange && !expired && (
-          <Group gap="xs" wrap="nowrap" pl={2}>
-            <IconMessage2Cog size={15} color="var(--mantine-color-dimmed)" />
-            <Text size="xs" c="dimmed">คุยกับฉันได้เมื่อเลเวล ≥</Text>
-            <NumberInput
-              size="xs"
-              w={78}
-              min={0}
-              max={100}
-              radius="md"
-              value={draft}
-              disabled={requirementLoading}
-              onChange={(v) => setDraft(typeof v === "number" ? v : 0)}
-              onBlur={commit}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
-              }}
-            />
-            <Text size="xs" c="dimmed">{draft > 0 ? "" : "(ทุกคน)"}</Text>
-          </Group>
+          <Box
+            style={{
+              background: "var(--mantine-color-gray-0)",
+              borderRadius: "var(--mantine-radius-md)",
+              padding: "8px 10px",
+            }}
+          >
+            <Group justify="space-between" wrap="nowrap" gap="xs">
+              <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
+                <IconMessage2Cog size={15} color="var(--mantine-color-ong-green-6)" />
+                <Text size="xs" c="dimmed" lineClamp={1}>
+                  คนจะทักคุยได้เมื่อเลเวล ≥
+                </Text>
+              </Group>
+              <Group gap={8} wrap="nowrap">
+                <NumberInput
+                  size="xs"
+                  w={64}
+                  min={0}
+                  max={100}
+                  radius="md"
+                  value={draft}
+                  disabled={requirementLoading}
+                  onChange={(v) => setDraft(typeof v === "number" ? v : 0)}
+                  onBlur={commit}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
+                  }}
+                />
+                <Badge
+                  size="sm"
+                  radius="sm"
+                  variant="light"
+                  color={draft > 0 ? "ong-green" : "gray"}
+                  style={{ minWidth: 62 }}
+                >
+                  {draft > 0 ? `lvl ${draft}+` : "ทุกคน"}
+                </Badge>
+              </Group>
+            </Group>
+          </Box>
         )}
       </Stack>
     </BaseCard>

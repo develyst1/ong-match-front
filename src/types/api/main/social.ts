@@ -68,3 +68,11 @@ export interface TrendingTag {
   types: number;
   sample_titles: string[];
 }
+
+export interface UserPost {
+  id: string;
+  content: string;
+  type_title: string | null;
+  type_level: number | null;
+  created_at: string;
+}
